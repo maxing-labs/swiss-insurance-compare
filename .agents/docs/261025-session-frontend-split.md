@@ -8,6 +8,7 @@
 - 只搬代码，不改行为、不改样式、不顺手修 bug；分多步提交，每步之后页面都能正常运行
 - #12：拆成「数据变化 → 全量重绘」和「医疗费变化 → 只重绘当前 Tab」两条渲染路径，指南只在切换语言时渲染。先出方案、经确认后再改，并对比改动前后的渲染次数和耗时
 - 每步提交前：`python3 -m unittest` 全部通过，浏览器冒烟测试覆盖各 Tab、语言、档案、分享链接、刷新恢复，控制台无报错
+- 用户追加：先部署 Vercel preview 验证，通过后部署到生产
 
 ## 完成内容
 
@@ -22,6 +23,8 @@
 | 6 | `541d80e` | `js/views/`：toast、controls、profiles、ranking、curves、matrix、history、guide；getTrendBadgeHtml 移到 format.js |
 | 7 | `183e9f2` | `js/controller.js`：编排逻辑。main.js 只剩 bindEvents + initApp（344 行） |
 | #12 | `817c447` | `onDataChange()` 加 `invalidateTabs(tabs)`，配合过期 Tab 集合 |
+| 文档 | `7d2f2e4` `db2b94e` 及本次提交 | 本 session 记录：preview 验证、生产部署、下一个 session 的 prompt |
+| 部署 | — | 先部署 preview 验证，再部署到生产（`db2b94e`），两个环境都复验通过，详见「其他」 |
 
 最终结构（共 2423 行）：
 
@@ -111,12 +114,15 @@ static/js/
 
 ### 其他
 
-- **已在 Vercel preview 上验证**（用户同意后部署，HEAD `7d2f2e4`，`vercel deploy`，未 promote 到生产）
-  - 地址：`swiss-insurance-compare-refjhemyq-jddymx-8366s-projects.vercel.app`，没有开启访问保护
-  - `/js/main.js`、`/js/views/*.js`、`/js/i18n/*.js` 均为 200，Content-Type 为 `application/javascript`，缓存头为 `max-age=0, must-revalidate`
-  - `VISIBLE=1` 快照 63/63 与 `cf734e7` 一致；错误路径 9/9 一致；控制台无报错
+- **已部署到生产**（均经用户同意）
+  - preview：HEAD `7d2f2e4`，`vercel deploy`，地址 `swiss-insurance-compare-refjhemyq-jddymx-8366s-projects.vercel.app`，没有开启访问保护
+  - 生产：HEAD `db2b94e`，`vercel deploy --prod`，部署地址 `swiss-insurance-compare-4w5r5rb0l-jddymx-8366s-projects.vercel.app`，别名为 `swiss-insurance-compare.vercel.app`。和 preview 相比只多了文档提交，没有代码改动
+  - 两个环境的验证结果相同
+    - `/js/main.js`、`/js/views/*.js`、`/js/i18n/*.js` 均为 200，Content-Type 为 `application/javascript`，缓存头为 `max-age=0, must-revalidate`
+    - `VISIBLE=1` 快照 63/63 与 `cf734e7` 一致；错误路径 9/9 一致；控制台无报错
+  - 旧的 `/app.js` 在生产上已是 404。HTML 带 `must-revalidate`，浏览器会重新取页面，不会继续引用旧脚本
   - preview 页面会注入 `vercel.live` 反馈脚本，生产环境没有；快照比对时会去掉 script 标签
-  - 生产环境仍是拆分前的版本，上线需要执行 `vercel deploy --prod`，或在 Vercel 控制台 promote 这次部署
+  - 如需回滚：在 Vercel 控制台把上一个生产部署 promote 回来，或执行 `vercel rollback`
 - **模块请求有瀑布**：main → controller → views，3 层、17 个文件。HTTP/2 下问题不大，如果首屏慢，可以在 `index.html` 加 `<link rel="modulepreload">`
 - **大表格仍然慢**：排行展开全部 128 行时，每次滑块事件约 14ms，主要花在可见表格的 layout 上；如需优化，可以只更新受医疗费影响的两列，或者节流
 - **验证脚本放在 `/tmp/priminfo-split/scripts/`，没有入库**
@@ -127,4 +133,33 @@ static/js/
   - `move.py`：按名字原样搬运顶层块；`conserve.py`：校验代码行守恒；`refs.py`：检查漏掉或多余的 import；`fix_imports.py`：按符号表生成 import
   - 基准代码在 `/tmp/priminfo-split/base`（`cf734e7` 的 git archive），在 8768 端口运行
 - **评审中仍未处理**：#5–#8、#14、#16、#17
-- **下一步建议**：先修上面第 1–3 条（都和错误状态有关，改动小）；再做 #6 / #7；#14 可以顺带把第 11 条的重复兜底值集中管理
+- **下一步建议**（按顺序）
+  1. 前端错误状态与数据一致性：上面第 1–3 条，以及评审 #5、#6、#7。都在前端，calc 已有单元测试兜底，prompt 见下
+  2. 后端：#8 改用上游 `optgroup` 的官方模型分类（顺带解决 PHARM 被误判的问题），#16 死接口。需要用真实上游验证
+  3. 维护：#14 集中管理魔法值（含第 11 条的重复兜底值）、#17 统一本地和线上入口
+
+### 下一个 session 的 prompt
+
+```
+项目在 ~/projs/dev-playground/priminfo-pro。先读 AGENTS.md，再按里面的文档规则读 .agents/docs/ 下最新的 session 记录和架构评审。
+
+本次任务：前端错误状态与数据一致性（评审里的行号对应提交 d7f75f5，前端已拆成 static/js/ 下的模块，以当前代码为准重新定位）
+- 上次 session 记录「拆分中发现、按要求未修的问题」第 1–3 条：
+  1. 加载中切换语言，状态徽标显示「已同步」
+  2. franchises 请求失败时，计算仍用旧的自付额（如出生年改成儿童年份），排行全是「—」，徽标却显示已同步
+  3. monthlyNet 为 null 的方案在最低价、KPI 排序和 CSV 导出里没有处理（NaN 比较，CSV 写成 0.00）
+- 评审 P1：#5 档案摘要与模型筛选不同步；#6 分享链接不含 models；#7 净保费两套算法，统一成一种
+
+要求：
+- 每条先写能复现问题的测试，确认失败后再修：纯函数用 node --test（tests/js/），涉及 DOM 和请求的用 Playwright。用法和脚本见上次 session 记录；/tmp/priminfo-split/ 下的脚本如果已经不在，就按记录重建
+- 每条单独提交。提交前 python3 -m unittest 和 node --test 'tests/js/*.test.mjs' 全部通过；本地 python3 server.py 后用浏览器冒烟测试，覆盖排名表、曲线图拖动、矩阵、历史、指南、档案、切换语言、分享链接、刷新后恢复状态，控制台无报错
+- 只改和当前这一条相关的代码，顺带发现的问题记下来，最后汇总给我
+- 以下几条先给方案，我确认后再改：
+  - 第 2 条：franchises 失败后怎么处理（不发计算请求并恢复旧的出生年？还是照常计算但给出提示？）
+  - #5：档案匹配要不要把 models 算进去，还是保存时同步更新 profile.models
+  - #6：URL 参数的格式，以及没有 models 的旧链接怎么兼容
+  - #7：统一用上游的 yearlyNet，还是本地的 (gross − rebate) × 12；先用真实数据核对两种算法差多少，再说明对最优档位、临界点和现有测试的影响
+- 改动用户可见的文本时，zh / en / de 三种语言同时补齐
+- 遇到需要取舍的地方先问我；部署前先问我
+- 结束前按 AGENTS.md 写 session 记录
+```
