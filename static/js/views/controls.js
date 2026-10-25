@@ -2,7 +2,7 @@ import { I18N } from "../i18n/index.js";
 import { state, getPremiumYear } from "../state.js";
 
 export function getAgeTagText(yob) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const age = Math.max(0, getPremiumYear() - Number(yob));
   if (age <= 18) return dict.ageChild(age);
   if (age <= 25) return dict.ageYouth(age);
@@ -34,7 +34,7 @@ export function syncFormControlsFromState() {
 }
 
 export function renderMedicalQuickSelect() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const sel = document.getElementById("medical-quick-select");
   if (!sel) return;
 
@@ -63,7 +63,7 @@ export function renderMedicalQuickSelect() {
 }
 
 export function updateMobileCollapseLabel() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const span = document.getElementById("mobile-filter-summary");
   const btn = document.getElementById("btn-toggle-filters");
   if (!span || !btn) return;

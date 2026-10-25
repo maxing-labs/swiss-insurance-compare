@@ -19,7 +19,7 @@ const FRANCHISE_COLORS = {
 };
 
 export function populateCurvePlanSelect() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const sel = document.getElementById("curve-plan-select");
   if (!state.data?.plans || !sel) return;
   sel.innerHTML = state.data.plans.map((p, idx) =>
@@ -29,7 +29,7 @@ export function populateCurvePlanSelect() {
 }
 
 export function renderCurvesTab(plans, franchises, rebate, isKid) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const plan = plans.find(p => p.originalIdx === state.selectedCurvePlanIdx) || plans[0];
   if (!plan) return;
 

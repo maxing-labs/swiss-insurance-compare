@@ -9,10 +9,10 @@ test("switching language while loading keeps the loading text, then shows the re
   await page.route("**/api/calculate**", async (r) => { await delay(1500); r.continue(); });
   await clickCoverage(page, 1);
   await page.waitForTimeout(200);
-  assert.deepEqual(await badge(page), { text: "加载中...", loading: true, error: false });
-
-  await page.click('.lang-btn[data-lang="en"]');
   assert.deepEqual(await badge(page), { text: "Loading...", loading: true, error: false });
+
+  await page.click('.lang-btn[data-lang="zh"]');
+  assert.deepEqual(await badge(page), { text: "加载中...", loading: true, error: false });
   await page.click('.lang-btn[data-lang="de"]');
   assert.deepEqual(await badge(page), { text: "Lädt...", loading: true, error: false });
 
@@ -31,10 +31,10 @@ test("a request that fails after a language switch shows the error text in the n
   });
   await clickCoverage(page, 1);
   await page.waitForTimeout(200);
-  await page.click('.lang-btn[data-lang="en"]');
-  assert.deepEqual(await badge(page), { text: "Loading...", loading: true, error: false });
-  await idle(page);
-  assert.deepEqual(await badge(page), { text: "Load failed", loading: false, error: true });
   await page.click('.lang-btn[data-lang="de"]');
+  assert.deepEqual(await badge(page), { text: "Lädt...", loading: true, error: false });
+  await idle(page);
   assert.deepEqual(await badge(page), { text: "Ladefehler", loading: false, error: true });
+  await page.click('.lang-btn[data-lang="en"]');
+  assert.deepEqual(await badge(page), { text: "Load failed", loading: false, error: true });
 });

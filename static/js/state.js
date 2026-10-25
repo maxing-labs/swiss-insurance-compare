@@ -7,7 +7,7 @@ const STORAGE_KEY_ACTIVE_STATE = "priminfo_pro_active_state_v2";
 const ALL_MODELS = ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
 
 export const state = {
-  lang: "zh",
+  lang: "en",
   activeTab: "ranking",
   locations: null,
   normalizedLocations: [],

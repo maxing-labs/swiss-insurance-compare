@@ -4,7 +4,7 @@ import { calcOutOfPocket, netYearlyAt } from "../calc.js";
 import { state, filterAndSortPlans } from "../state.js";
 
 export function renderMatrixTable(plans, franchises, rebate, isKid) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const thead = document.getElementById("matrix-thead");
   const tbody = document.getElementById("matrix-tbody");
   const filtered = filterAndSortPlans(plans);

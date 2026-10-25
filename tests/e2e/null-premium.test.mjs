@@ -42,7 +42,7 @@ test("KPIs and the profile summary skip plans without a premium", { skip }, asyn
     "kpi-min-monthly": `CHF ${fmt(cheapest.monthlyNet)}`,
     "kpi-min-plan": `${cheapest.insurer} · ${cheapest.model}`,
     "kpi-max-savings": `CHF ${fmt(priciest.yearlyNet - cheapest.yearlyNet, 0)}`,
-    "kpi-savings-sub": `对比最贵 ${priciest.insurer} (${fmt(priciest.monthlyNet)}/月)`
+    "kpi-savings-sub": `vs. priciest ${priciest.insurer} (${fmt(priciest.monthlyNet)}/mo)`
   });
 
   // the default profile matches the default configuration, so its summary is refreshed from this response

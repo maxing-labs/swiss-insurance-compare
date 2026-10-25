@@ -5,7 +5,7 @@ import { skip, openApp, close, badge, takeToasts, setYob, withCalc, delay } from
 
 after(close);
 
-const LOAD_FAILED = "数据加载失败，请稍后重试";
+const LOAD_FAILED = "Failed to load data, please try again later";
 const fail502 = (r) => r.fulfill({ status: 502, body: '{"error":"Bad Gateway"}' });
 
 const form = (page) => page.evaluate(() => ({
@@ -37,7 +37,7 @@ test("birth year change: on failure the old birth year comes back and nothing is
   assert.deepEqual(calcs, []);
   assert.deepEqual(await form(page), before);
   assert.deepEqual(await takeToasts(page), [LOAD_FAILED]);
-  assert.deepEqual(await badge(page), { text: "数据已加载", loading: false, error: false });
+  assert.deepEqual(await badge(page), { text: "Data loaded", loading: false, error: false });
 
   // a later change retries and goes through
   await page.unroute("**/api/franchises**");
@@ -106,7 +106,7 @@ test("startup: a failed franchises request still calculates the stored configura
   assert.equal(calcs.length, 1);
   assert.match(calcs[0], /yob=2015&franchise=0&/);
   assert.deepEqual(await takeToasts(page), [LOAD_FAILED]);
-  assert.deepEqual(await badge(page), { text: "数据已加载", loading: false, error: false });
+  assert.deepEqual(await badge(page), { text: "Data loaded", loading: false, error: false });
 });
 
 test("profile switch: a franchise the profile's birth year does not offer falls back to the default", { skip }, async () => {

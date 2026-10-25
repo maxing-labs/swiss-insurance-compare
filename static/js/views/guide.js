@@ -2,7 +2,7 @@ import { I18N } from "../i18n/index.js";
 import { state } from "../state.js";
 
 export function renderGuideTab() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const g = dict.guide;
   const container = document.getElementById("guide-dynamic-container");
   if (!container || !g) return;

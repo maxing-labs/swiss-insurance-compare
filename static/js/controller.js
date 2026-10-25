@@ -213,7 +213,7 @@ export async function fetchAndRenderCalculation() {
 }
 
 export function saveCurrentAsProfile() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const existing = findProfileByConfig();
 
   const cheapest = getCheapestPlanFromCurrentData();
@@ -274,7 +274,7 @@ export async function applyProfile(profileId) {
 
 export function deleteProfile(profileId, ev) {
   ev.stopPropagation();
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   if (state.savedProfiles.length <= 1) {
     showToast(dict.toastKeepOneProfile);
     return;
@@ -318,7 +318,7 @@ export function switchTab(tabId) {
 }
 
 export function applyLanguage(lang) {
-  state.lang = I18N[lang] ? lang : "zh";
+  state.lang = I18N[lang] ? lang : "en";
   const dict = I18N[state.lang];
 
   document.documentElement.lang = dict.htmlLang;

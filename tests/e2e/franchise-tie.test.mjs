@@ -24,12 +24,12 @@ test("a tie keeps the selected franchise as the best one in the matrix and the c
   const curve = await page.evaluate(() => ({
     title: document.getElementById("verdict-title").textContent,
     best: document.querySelector("#cursor-breakdown .cb-item.best .cb-head").textContent.replace(/\s+/g, " ").trim(),
-    crossover: [...document.querySelectorAll("#breakeven-svg text")].map(t => t.textContent).find(t => t.startsWith("临界点"))
+    crossover: [...document.querySelectorAll("#breakeven-svg text")].map(t => t.textContent).find(t => t.startsWith("Break-even"))
   }));
   assert.deepEqual(curve, {
-    title: "看病 CHF 1'900 时：选自付额 2500 最省钱",
-    best: "自付额 2500 ★最优",
-    crossover: "临界点 ≈ CHF 1'900"
+    title: "At CHF 1'900 medical bills: Franchise 2500 is cheapest",
+    best: "Franchise 2500 ★Best",
+    crossover: "Break-even ≈ CHF 1'900"
   });
 
   await page.click('.nav-tabs button[data-tab="matrix"]');

@@ -4,14 +4,14 @@ import { familyBundleTop5 } from "../calc.js";
 import { state } from "../state.js";
 
 export function buildProfileLabel(locationName, yob, franchise, coverage) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const cityShort = (locationName || "").split(",")[0].trim();
   const accTag = coverage ? dict.accSuffix : "";
   return `${cityShort} · ${yob} · F${franchise}${accTag}`;
 }
 
 export function renderProfileChipsAndCards() {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const chipsEl = document.getElementById("profile-chips");
   const boxEl = document.getElementById("saved-comparison-box");
   const gridEl = document.getElementById("saved-cards-grid");

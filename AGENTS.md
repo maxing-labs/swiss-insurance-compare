@@ -18,7 +18,7 @@
 
 - **零依赖**：后端只用 Python 标准库，前端是原生 JS、没有构建步骤。引入依赖或构建工具前先征得用户同意。
 - **API 逻辑只放在 `api/index.py`**（`handle_api_request`）。`server.py` 只是本地开发的包装层。
-- **i18n**：用户可见的文本统一放进 `static/js/i18n/` 下的 `zh.js` / `en.js` / `de.js`，三种语言同时补齐。
+- **i18n**：用户可见的文本统一放进 `static/js/i18n/` 下的 `zh.js` / `en.js` / `de.js`，三种语言同时补齐。默认语言是 `en`：`state.lang` 的初始值和 `index.html` 里的占位文本都是英文。
 - **样式**：色板和字体 token 在 `static/style.css` 的 `:root`；SVG 图表颜色在 `static/js/views/chart-theme.js`；字体自托管在 `static/fonts/`（latin 子集，不要改回 Google Fonts 外链）。
 - **上游解析很脆弱**：解析器靠表格下标和列位置取数。改动解析逻辑后要用真实上游请求验证，`/api/calculate` 返回的 `plans` 应非空且各字段有值。
 - **CDN 缓存**：API 成功响应带 `s-maxage=3600`，会在边缘缓存 1 小时。错误或解析为空的结果必须返回非 2xx，避免被缓存：抛 `EmptyResultError`，返回 502 且不带缓存头。例外：上游明确提示「keine Prämien」（如只勾 PHARM）属于合法的空结果，仍返回 200。

@@ -79,7 +79,7 @@ function bindEvents() {
   };
 
   const renderLocationDropdown = (query) => {
-    const dict = I18N[state.lang] || I18N.zh;
+    const dict = I18N[state.lang] || I18N.en;
     const { matches, totalCount } = searchLocations(state.normalizedLocations, query);
     kbLocationIdx = -1;
     if (!query.trim()) {
@@ -180,7 +180,7 @@ function bindEvents() {
   });
 
   yobInput.addEventListener("change", async () => {
-    const dict = I18N[state.lang] || I18N.zh;
+    const dict = I18N[state.lang] || I18N.en;
     const ok = validateYobValue(yobInput.value);
     if (!ok) {
       yobInput.classList.add("is-invalid");
@@ -208,7 +208,7 @@ function bindEvents() {
 
   document.querySelectorAll("#model-pills .m-chip input").forEach(cb => {
     cb.addEventListener("change", () => {
-      const dict = I18N[state.lang] || I18N.zh;
+      const dict = I18N[state.lang] || I18N.en;
       const chip = cb.closest(".m-chip");
       const checked = Array.from(document.querySelectorAll("#model-pills input:checked")).map(i => i.value);
       if (checked.length === 0) {

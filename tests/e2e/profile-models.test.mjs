@@ -38,7 +38,7 @@ test("changing the model filter leaves the profile and its summary alone until i
   assert.deepEqual(saved.models, ["BASE", "FLEX", "PRAXIS", "PHARM"]);
   assert.ok(saved.summaryMinMonthly > initial.summaryMinMonthly);
   assert.equal(await activeChip(page), initial.id);
-  assert.match((await takeToasts(page))[0], /^已更新档案/);
+  assert.match((await takeToasts(page))[0], /^Updated profile/);
 
   // reload restores the filter, and the profile still matches
   await withCalc(page, () => page.reload());

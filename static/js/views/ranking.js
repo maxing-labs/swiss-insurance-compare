@@ -5,7 +5,7 @@ import { state, getEnrichedPlans, filterAndSortPlans } from "../state.js";
 const DEFAULT_RANKING_LIMIT = 25;
 
 export function renderKpis(plans, rebate) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   if (plans.length === 0) return;
   const sortedByMonthly = plans
     .filter(p => p.monthlyNet !== null && p.monthlyNet !== undefined)
@@ -40,7 +40,7 @@ export function renderKpis(plans, rebate) {
 }
 
 function getCategoryTip(cat) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const map = {
     BASE: dict.tipBase,
     FLEX: dict.tipFlex,
@@ -52,7 +52,7 @@ function getCategoryTip(cat) {
 }
 
 export function renderRankingTable(plans) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const tbody = document.getElementById("ranking-tbody");
   const loadMoreWrap = document.getElementById("ranking-load-more-wrap");
   const loadMoreBtn = document.getElementById("btn-load-more");

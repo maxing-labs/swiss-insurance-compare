@@ -91,7 +91,7 @@ function renderHistoryChart(rows, years) {
 }
 
 export function renderHistoryTable(historyRows, years) {
-  const dict = I18N[state.lang] || I18N.zh;
+  const dict = I18N[state.lang] || I18N.en;
   const thead = document.getElementById("history-thead");
   const tbody = document.getElementById("history-tbody");
 
