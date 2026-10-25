@@ -146,13 +146,31 @@ export function loadSavedProfilesAndActiveState() {
   }
 
   // Match activeProfileId against current configuration
-  const matchedProfile = state.savedProfiles.find(
-    p => p.locationId === state.locationId &&
+  const matchedProfile = findActiveProfile();
+  state.activeProfileId = matchedProfile ? matchedProfile.id : null;
+}
+
+function matchesConfig(p) {
+  return p.locationId === state.locationId &&
          Number(p.yob) === Number(state.yob) &&
          Number(p.franchise) === Number(state.franchise) &&
-         Number(p.coverage) === Number(state.coverage)
-  );
-  state.activeProfileId = matchedProfile ? matchedProfile.id : null;
+         Number(p.coverage) === Number(state.coverage);
+}
+
+// Profiles saved without models cover every model (as in applyProfile)
+function matchesModels(p) {
+  const models = p.models?.length ? p.models : ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
+  return models.length === state.models.length && models.every(m => state.models.includes(m));
+}
+
+// Saved profile for the current location, birth year, franchise and accident cover; saving updates it in place
+export function findProfileByConfig() {
+  return state.savedProfiles.find(matchesConfig);
+}
+
+// Profile the current view shows: its summary is computed from its own model filter, so that must match too
+export function findActiveProfile() {
+  return state.savedProfiles.find(p => matchesConfig(p) && matchesModels(p));
 }
 
 export function persistProfiles() {

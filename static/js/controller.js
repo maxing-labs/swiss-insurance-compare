@@ -8,6 +8,8 @@ import {
   saveActiveStateToStorageAndUrl,
   saveActiveStateDebounced,
   persistProfiles,
+  findActiveProfile,
+  findProfileByConfig,
   getCheapestPlanFromCurrentData,
   getEnrichedPlans
 } from "./state.js";
@@ -180,12 +182,7 @@ export async function fetchAndRenderCalculation() {
     state.selectedCurvePlanIdx = 0;
 
     // Match or update active profile summary
-    const matchedP = state.savedProfiles.find(
-      p => p.locationId === state.locationId &&
-           Number(p.yob) === Number(state.yob) &&
-           Number(p.franchise) === Number(state.franchise) &&
-           Number(p.coverage) === Number(state.coverage)
-    );
+    const matchedP = findActiveProfile();
     state.activeProfileId = matchedP ? matchedP.id : null;
 
     const cheapest = getCheapestPlanFromCurrentData();
@@ -217,12 +214,7 @@ export async function fetchAndRenderCalculation() {
 
 export function saveCurrentAsProfile() {
   const dict = I18N[state.lang] || I18N.zh;
-  const existing = state.savedProfiles.find(
-    p => p.locationId === state.locationId &&
-         Number(p.yob) === Number(state.yob) &&
-         Number(p.franchise) === Number(state.franchise) &&
-         Number(p.coverage) === Number(state.coverage)
-  );
+  const existing = findProfileByConfig();
 
   const cheapest = getCheapestPlanFromCurrentData();
   const insurerMinMap = buildInsurerMinMap(state.data?.plans || []);
