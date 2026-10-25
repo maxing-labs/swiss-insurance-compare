@@ -3,16 +3,12 @@ from http.server import BaseHTTPRequestHandler
 import json
 import logging
 import re
-import time
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 BASE_URL = "https://www.priminfo.admin.ch"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
-
-CACHE = {}
-CACHE_TTL = 3600
 
 
 class EmptyResultError(Exception):
@@ -24,12 +20,6 @@ class NotFoundError(Exception):
 
 
 def fetch_upstream(path_with_query: str) -> str:
-    now = time.time()
-    if path_with_query in CACHE:
-        ts, data = CACHE[path_with_query]
-        if now - ts < CACHE_TTL:
-            return data
-
     url = f"{BASE_URL}{path_with_query}"
     req = urllib.request.Request(
         url,
@@ -40,9 +30,7 @@ def fetch_upstream(path_with_query: str) -> str:
         },
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
-        text = resp.read().decode("utf-8", errors="replace")
-    CACHE[path_with_query] = (now, text)
-    return text
+        return resp.read().decode("utf-8", errors="replace")
 
 
 def get_locations_json() -> dict:

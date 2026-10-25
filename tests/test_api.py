@@ -4,6 +4,7 @@ Parsers run on trimmed real upstream pages (tests/fixtures/, see tests/make_fixt
 HTTP tests start both handlers on localhost with api.fetch_upstream replaced by the fixtures.
 """
 import http.client
+import io
 import json
 import threading
 import unittest
@@ -101,6 +102,20 @@ class ParserTest(unittest.TestCase):
 
     def test_no_premiums_page(self):
         self.assertEqual(api.parse_savings_html(fixture("no_premiums.html")), [])
+
+
+class FetchUpstreamTest(unittest.TestCase):
+    def test_recovers_once_upstream_is_back(self):
+        """A maintenance page must not be kept in memory and keep the 502 going."""
+        pages = iter([MAINTENANCE, fixture("locations.js")])
+
+        def fake_urlopen(req, timeout):
+            return io.BytesIO(next(pages).encode("utf-8"))
+
+        with mock.patch.object(api.urllib.request, "urlopen", fake_urlopen):
+            with self.assertRaises(api.EmptyResultError):
+                api.handle_api_request("/api/locations", {})
+            self.assertIn("80011450512497", api.handle_api_request("/api/locations", {})["names"])
 
 
 class VercelHandlerTest(unittest.TestCase):
