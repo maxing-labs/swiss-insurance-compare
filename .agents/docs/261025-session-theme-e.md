@@ -20,6 +20,7 @@
 | 3 | `8eb7901` | 头部「关于」按钮 + 原生 `<dialog>`（`index.html`、`main.js`）；`applyLanguage` 新增 `data-i18n-aria`；About 文案 zh/en/de |
 | 文档 | 本次 | 本文件；AGENTS.md 补一行字体 / 色板位置 |
 | 色板 | `047ed97` | `FRANCHISE_COLORS` 的 F400 / F1000 和 `HISTORY_LINE_COLORS` 第 4 色 `#d97706` → `#b45309`（暖白底上 3.0:1 → 4.6:1） |
+| 小修 | `634f095` | About 弹窗居中（全局 `* { margin: 0 }` 盖掉了 UA 的 `dialog { margin: auto }`，之前贴在左上角）；出生年标签去掉「(1900–2027)」；Tab 05 新手指南 → 就医模式指南 / Model Guide |
 | 临界点 | `5c1a832` | 指南卡片改为「低于约 CHF 1'800–2'000 选 2500，高于选 300，准确值看曲线页」；快捷选项和预设按钮从 1'800 改为 1'900（key 改名 `medOptBreakEven` / `presetBreakEven`） |
 
 任务书写的是 `static/app.js`，但仓库早已拆成 `static/js/`，所以颜色常量改在 `views/curves.js`、`views/history.js`、`views/guide.js`。
@@ -31,7 +32,7 @@
 | 状态胶囊 | 已同步 / Synced / Synchron | 数据已加载 / Data loaded / Daten geladen（加载中、加载失败同理） |
 | Tab 02 | 盈亏曲线 / Cost Curves / Kostenkurven | 自付额怎么选 / Which Franchise? / Welche Franchise? |
 | Tab 03 | 全档矩阵 / Matrix / Matrix | 自付额对照表 / Franchise Table / Franchise-Tabelle |
-| Tab 05 | 模型指南 / Model Guide / Ratgeber | 新手指南 / Guide / Ratgeber |
+| Tab 05 | 模型指南 / Model Guide / Ratgeber | 就医模式指南 / Model Guide / Ratgeber（先改为新手指南，用户要求再改） |
 | 表单标签 | 模型筛选 | 就医模式（en/de 不变） |
 | 排行列 + 按钮 | 精算曲线 · 看曲线 / Curve | 自付额分析 · 分析 / Franchise Check · Check |
 | 曲线页 | 精算结论 / Actuarial Verdict | 建议 / Recommendation |
@@ -74,6 +75,7 @@
 
 - 直接 `vercel deploy --prod --yes`，HEAD `5c1a832`
 - 部署 `swiss-insurance-compare-bydpfs693-jddymx-8366s-projects.vercel.app`，别名 `swiss-insurance-compare.vercel.app`，`dpl_73mKqnAszfzNEbvN5GCiRLyvSUad`
+- 第二次：HEAD `634f095`，部署 `swiss-insurance-compare-89gj014d0-jddymx-8366s-projects.vercel.app`，别名同上；验证首页含新标签、`style.css` 含居中规则、生产上弹窗在 1280×900 / 1465×575 / 390×844 居中
 - 验证：首页 / `style.css` / 两个字体（`font/woff2`，与本地字节一致）/ `chart-theme.js` / API 均 200；页面含 `btn-about` 与 `presetBreakEven`；`quick.mjs` 对生产的读数与本地一致；e2e 18/18（`BASE=` 指向生产）；控制台无报错
 - 回滚：Vercel 控制台 promote 上一个生产部署（`62ccfd0`，`swiss-insurance-compare-a7hftjm1j-…`），或 `vercel rollback`
 
