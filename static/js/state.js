@@ -3,6 +3,8 @@ import { enrichPlans, ascNullsLast } from "./calc.js";
 
 const STORAGE_KEY_PROFILES = "priminfo_pro_profiles_v2";
 const STORAGE_KEY_ACTIVE_STATE = "priminfo_pro_active_state_v2";
+// In the order of the #model-pills checkboxes, so the API URL (and its CDN cache entry) is the same either way
+const ALL_MODELS = ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
 
 export const state = {
   lang: "zh",
@@ -63,10 +65,12 @@ export function saveActiveStateToStorageAndUrl() {
     params.set("yob", String(state.yob));
     params.set("fran", String(state.franchise));
     params.set("acc", String(state.coverage));
+    params.set("models", state.models.join(","));
     params.set("med", String(state.medicalCost));
     params.set("tab", state.activeTab);
     params.set("lang", state.lang);
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    // commas are valid in a query string; keep them readable
+    const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
     window.history.replaceState(null, "", newUrl);
   } catch (e) {
     // ignore history errors
@@ -140,6 +144,10 @@ export function loadSavedProfilesAndActiveState() {
     if (params.get("yob") && qYob >= 1900 && qYob <= 2027) state.yob = qYob;
     if (params.get("fran")) state.franchise = Number(params.get("fran"));
     if (params.get("acc") !== null && params.get("acc") !== "") state.coverage = Number(params.get("acc"));
+    // Links from before models were shared have none: keep the stored filter
+    const qModels = (params.get("models") || "").split(",");
+    const linkModels = ALL_MODELS.filter(m => qModels.includes(m));
+    if (linkModels.length > 0) state.models = linkModels;
     if (params.get("med") !== null && params.get("med") !== "") state.medicalCost = Number(params.get("med"));
   } catch (e) {
     // ignore
@@ -159,7 +167,7 @@ function matchesConfig(p) {
 
 // Profiles saved without models cover every model (as in applyProfile)
 function matchesModels(p) {
-  const models = p.models?.length ? p.models : ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
+  const models = p.models?.length ? p.models : ALL_MODELS;
   return models.length === state.models.length && models.every(m => state.models.includes(m));
 }
 
