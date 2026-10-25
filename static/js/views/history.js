@@ -1,6 +1,7 @@
 import { I18N } from "../i18n/index.js";
 import { fmtChf, fmtSignedPct, esc, getTrendBadgeHtml } from "../format.js";
 import { state } from "../state.js";
+import { CHART_THEME } from "./chart-theme.js";
 
 const HISTORY_LINE_COLORS = [
   "#dc2626", "#2563eb", "#059669", "#d97706",
@@ -50,14 +51,14 @@ function renderHistoryChart(rows, years) {
   for (let i = 0; i <= yTicks; i++) {
     const val = minP + ((maxP - minP) * i) / yTicks;
     const py = scaleY(val);
-    parts.push(`<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e5e7eb" stroke-width="1" />`);
-    parts.push(`<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="12" fill="#4b5563">${fmtChf(val, 0)}</text>`);
+    parts.push(`<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="${CHART_THEME.grid}" stroke-width="1" />`);
+    parts.push(`<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="12" fill="${CHART_THEME.axisText}">${fmtChf(val, 0)}</text>`);
   }
 
   years.forEach((y, idx) => {
     const px = scaleX(idx);
-    parts.push(`<line x1="${px}" y1="${padT}" x2="${px}" y2="${H - padB}" stroke="#e5e7eb" stroke-width="1" />`);
-    parts.push(`<text x="${px}" y="${H - padB + 20}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563">${y}</text>`);
+    parts.push(`<line x1="${px}" y1="${padT}" x2="${px}" y2="${H - padB}" stroke="${CHART_THEME.grid}" stroke-width="1" />`);
+    parts.push(`<text x="${px}" y="${H - padB + 20}" text-anchor="middle" font-size="12" font-weight="600" fill="${CHART_THEME.axisText}">${y}</text>`);
   });
 
   topRows.forEach((r, rIdx) => {
@@ -73,7 +74,7 @@ function renderHistoryChart(rows, years) {
       parts.push(`<polyline fill="none" stroke="${color}" stroke-width="2.4" points="${pts.map(pt => `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ")}" />`);
     }
     for (const pt of pts) {
-      parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.2" />`);
+      parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="3.5" fill="${color}" stroke="${CHART_THEME.pointStroke}" stroke-width="1.2" />`);
     }
   });
 

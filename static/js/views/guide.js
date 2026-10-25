@@ -17,7 +17,7 @@ export function renderGuideTab() {
       ${g.cards.map(c => `
         <article class="guide-card ${c.highlight ? "highlight-guide-card" : ""}">
           <div class="guide-card-top">
-            <span class="cat-tag ${c.cat === "RULE" ? "" : `cat-${c.cat}`}" ${c.cat === "RULE" ? 'style="background:#fef3c7;color:#b45309;"' : ""}>${c.badge}</span>
+            <span class="cat-tag cat-${c.cat}">${c.badge}</span>
             <span class="discount-tag ${c.discountGreen ? "text-green" : ""}">${c.discount}</span>
           </div>
           <h3>${c.title}</h3>

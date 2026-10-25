@@ -6,6 +6,8 @@
   <meta name="description" content="Priminfo Pro — 瑞士联邦卫生局 (BAG) 2027 医保保费精算比价工具：支持多档自付额盈亏平衡曲线、多家庭成员档案对比、全档矩阵与5年历史涨幅分析。">
   <title>Priminfo Pro — 瑞士医保比价 (2027)</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23d90429'/%3E%3Cpath d='M13 6h6v7h7v6h-7v7h-6v-7H6v-6h7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/fraunces-500-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -170,8 +172,8 @@
           <span class="kpi-meta" id="kpi-min-plan">—</span>
         </div>
         <div class="kpi-cell">
-          <span class="kpi-label" data-i18n="kpiSavings">年省空间 (对比最贵)</span>
-          <strong class="kpi-num text-green" id="kpi-max-savings">—</strong>
+          <span class="kpi-label" data-i18n="kpiSavings">每年最多可省 (对比最贵方案)</span>
+          <strong class="kpi-num text-accent" id="kpi-max-savings">—</strong>
           <span class="kpi-meta" id="kpi-savings-sub">—</span>
         </div>
         <div class="kpi-cell">

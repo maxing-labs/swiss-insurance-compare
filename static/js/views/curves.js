@@ -2,6 +2,7 @@ import { I18N } from "../i18n/index.js";
 import { fmtChf, esc } from "../format.js";
 import { buildCurveSeries, findCrossover } from "../calc.js";
 import { state } from "../state.js";
+import { CHART_THEME } from "./chart-theme.js";
 
 const FRANCHISE_COLORS = {
   0: "#2563eb",
@@ -107,20 +108,20 @@ export function renderCurvesTab(plans, franchises, rebate, isKid) {
   for (let i = 0; i <= yTicks; i++) {
     const valY = minY + ((maxY - minY) * i) / yTicks;
     const py = scaleY(valY);
-    svgParts.push(`<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="#e5e7eb" stroke-width="1" />`);
-    svgParts.push(`<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="13" font-weight="600" fill="#4b5563">${fmtChf(valY, 0)}</text>`);
+    svgParts.push(`<line x1="${padL}" y1="${py}" x2="${W - padR}" y2="${py}" stroke="${CHART_THEME.grid}" stroke-width="1" />`);
+    svgParts.push(`<text x="${padL - 8}" y="${py + 4}" text-anchor="end" font-size="13" font-weight="600" fill="${CHART_THEME.axisText}">${fmtChf(valY, 0)}</text>`);
   }
 
   for (let x = 0; x <= maxX; x += 1000) {
     const px = scaleX(x);
-    svgParts.push(`<line x1="${px}" y1="${padT}" x2="${px}" y2="${H - padB}" stroke="#e5e7eb" stroke-width="1" />`);
-    svgParts.push(`<text x="${px}" y="${H - padB + 22}" text-anchor="middle" font-size="13" font-weight="600" fill="#4b5563">CHF ${fmtChf(x, 0)}</text>`);
+    svgParts.push(`<line x1="${px}" y1="${padT}" x2="${px}" y2="${H - padB}" stroke="${CHART_THEME.grid}" stroke-width="1" />`);
+    svgParts.push(`<text x="${px}" y="${H - padB + 22}" text-anchor="middle" font-size="13" font-weight="600" fill="${CHART_THEME.axisText}">CHF ${fmtChf(x, 0)}</text>`);
   }
 
   if (crossoverX !== null) {
     const cx = scaleX(crossoverX);
-    svgParts.push(`<line x1="${cx}" y1="${padT}" x2="${cx}" y2="${H - padB}" stroke="#d97706" stroke-width="1.8" stroke-dasharray="4 4" />`);
-    svgParts.push(`<text x="${cx + 6}" y="${padT + 16}" font-size="13" font-weight="700" fill="#b45309">${dict.crossoverLabel(crossoverX)}</text>`);
+    svgParts.push(`<line x1="${cx}" y1="${padT}" x2="${cx}" y2="${H - padB}" stroke="${CHART_THEME.crossover}" stroke-width="1.8" stroke-dasharray="4 4" />`);
+    svgParts.push(`<text x="${cx + 6}" y="${padT + 16}" font-size="13" font-weight="700" fill="${CHART_THEME.crossover}">${dict.crossoverLabel(crossoverX)}</text>`);
   }
 
   for (const s of seriesList) {
@@ -134,12 +135,12 @@ export function renderCurvesTab(plans, franchises, rebate, isKid) {
   }
 
   const curX = scaleX(state.medicalCost);
-  svgParts.push(`<line x1="${curX}" y1="${padT}" x2="${curX}" y2="${H - padB}" stroke="#111827" stroke-width="1.8" />`);
+  svgParts.push(`<line x1="${curX}" y1="${padT}" x2="${curX}" y2="${H - padB}" stroke="${CHART_THEME.cursor}" stroke-width="1.8" />`);
 
   for (const s of seriesList) {
     const cy = scaleY(s.cursorTotal);
     const r = s.franchise === bestAtCursor.franchise ? 6 : 4;
-    svgParts.push(`<circle cx="${curX}" cy="${cy}" r="${r}" fill="${s.color}" stroke="#fff" stroke-width="1.5" />`);
+    svgParts.push(`<circle cx="${curX}" cy="${cy}" r="${r}" fill="${s.color}" stroke="${CHART_THEME.pointStroke}" stroke-width="1.5" />`);
   }
 
   svg.innerHTML = svgParts.join("");
