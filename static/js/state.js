@@ -1,5 +1,5 @@
 import { I18N } from "./i18n/index.js";
-import { enrichPlans } from "./calc.js";
+import { enrichPlans, ascNullsLast } from "./calc.js";
 
 const STORAGE_KEY_PROFILES = "priminfo_pro_profiles_v2";
 const STORAGE_KEY_ACTIVE_STATE = "priminfo_pro_active_state_v2";
@@ -165,8 +165,8 @@ export function persistProfiles() {
 
 export function getCheapestPlanFromCurrentData() {
   if (!state.data?.plans?.length) return null;
-  const sorted = [...state.data.plans].sort((a, b) => a.monthlyNet - b.monthlyNet);
-  return sorted[0];
+  const sorted = [...state.data.plans].sort((a, b) => ascNullsLast(a.monthlyNet, b.monthlyNet));
+  return sorted[0].monthlyNet === null || sorted[0].monthlyNet === undefined ? null : sorted[0];
 }
 
 export function getEnrichedPlans() {
@@ -192,9 +192,9 @@ export function filterAndSortPlans(plans) {
       return (a.avgIncreasePct ?? 99) - (b.avgIncreasePct ?? 99);
     }
     if (state.sortBy === "totalYearCost") {
-      return (a.totalYearCost ?? 0) - (b.totalYearCost ?? 0);
+      return ascNullsLast(a.totalYearCost, b.totalYearCost);
     }
-    return (a.monthlyNet ?? 0) - (b.monthlyNet ?? 0);
+    return ascNullsLast(a.monthlyNet, b.monthlyNet);
   });
   return list;
 }

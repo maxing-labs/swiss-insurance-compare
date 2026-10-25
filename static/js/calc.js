@@ -84,6 +84,14 @@ export function findCrossover(lowS, highS, isKid, maxX) {
   return crossoverX;
 }
 
+// Ascending sort comparator; null / undefined (a plan without a premium) sorts after every number
+export function ascNullsLast(a, b) {
+  const aNull = a === null || a === undefined;
+  const bNull = b === null || b === undefined;
+  if (aNull || bNull) return aNull - bNull;
+  return a - b;
+}
+
 export function buildInsurerMinMap(plans) {
   const map = {};
   for (const p of plans || []) {

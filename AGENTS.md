@@ -6,7 +6,7 @@
 
 - 本地：`python3 server.py` → http://127.0.0.1:8765
 - 测试：`python3 -m unittest`（不联网，用 `tests/fixtures/` 里的上游快照）。上游改版或每年 9 月更新数据后，用 `python3 -m tests.make_fixtures` 重新生成快照（需联网），再按新数据修正测试
-- 前端测试：`node --test 'tests/js/*.test.mjs'`（Node ≥ 22，只用内置的 `node:test`），覆盖 `static/js/calc.js`、`location-search.js` 的纯函数。不要为此加 `package.json`，以免 Vercel 把项目识别成 Node 项目
+- 前端测试：`node --test 'tests/js/*.test.mjs'`（Node ≥ 22，只用内置的 `node:test`），覆盖 `static/js/calc.js`、`location-search.js` 的纯函数和 `state.js` 的派生数据。不要为此加 `package.json`，以免 Vercel 把项目识别成 Node 项目
 - 浏览器测试：`tests/e2e/`，覆盖涉及 DOM 和请求的行为（用 `page.route` 模拟接口失败、延迟或改写响应）
   - 先运行 `python3 server.py`。其余请求会经本地服务访问真实上游，需要联网
   - 运行：`PLAYWRIGHT_CORE=<playwright-core 目录> CHROMIUM=<浏览器可执行文件> node --test 'tests/e2e/*.test.mjs'`

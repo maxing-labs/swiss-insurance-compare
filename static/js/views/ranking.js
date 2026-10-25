@@ -7,16 +7,24 @@ const DEFAULT_RANKING_LIMIT = 25;
 export function renderKpis(plans, rebate) {
   const dict = I18N[state.lang] || I18N.zh;
   if (plans.length === 0) return;
-  const sortedByMonthly = [...plans].sort((a, b) => a.monthlyNet - b.monthlyNet);
+  const sortedByMonthly = plans
+    .filter(p => p.monthlyNet !== null && p.monthlyNet !== undefined)
+    .sort((a, b) => a.monthlyNet - b.monthlyNet);
   const cheapest = sortedByMonthly[0];
   const priciest = sortedByMonthly[sortedByMonthly.length - 1];
-  const maxSavings = (priciest.yearlyNet || 0) - (cheapest.yearlyNet || 0);
 
-  document.getElementById("kpi-min-monthly").textContent = `CHF ${fmtChf(cheapest.monthlyNet)}`;
-  document.getElementById("kpi-min-plan").textContent = `${cheapest.insurer} · ${cheapest.model}`;
+  if (cheapest) {
+    const maxSavings = (priciest.yearlyNet || 0) - (cheapest.yearlyNet || 0);
+    document.getElementById("kpi-min-monthly").textContent = `CHF ${fmtChf(cheapest.monthlyNet)}`;
+    document.getElementById("kpi-min-plan").textContent = `${cheapest.insurer} · ${cheapest.model}`;
 
-  document.getElementById("kpi-max-savings").textContent = `CHF ${fmtChf(maxSavings, 0)}`;
-  document.getElementById("kpi-savings-sub").textContent = dict.vsPriciest(priciest.insurer, priciest.monthlyNet);
+    document.getElementById("kpi-max-savings").textContent = `CHF ${fmtChf(maxSavings, 0)}`;
+    document.getElementById("kpi-savings-sub").textContent = dict.vsPriciest(priciest.insurer, priciest.monthlyNet);
+  } else {
+    for (const id of ["kpi-min-monthly", "kpi-min-plan", "kpi-max-savings", "kpi-savings-sub"]) {
+      document.getElementById(id).textContent = "—";
+    }
+  }
 
   const hist = (state.data.insurerHistory || []).filter(h => h.avgIncreasePct !== null && h.avgIncreasePct !== undefined);
   hist.sort((a, b) => a.avgIncreasePct - b.avgIncreasePct);
@@ -118,8 +126,8 @@ export function exportRankingToCsv() {
       `"${(p.insurer || "").replace(/"/g, '""')}"`,
       `"${(p.model || "").replace(/"/g, '""')}"`,
       p.modelCategory,
-      (p.monthlyNet ?? 0).toFixed(2),
-      (p.yearlyNet ?? 0).toFixed(2),
+      p.monthlyNet !== null && p.monthlyNet !== undefined ? p.monthlyNet.toFixed(2) : "",
+      p.yearlyNet !== null && p.yearlyNet !== undefined ? p.yearlyNet.toFixed(2) : "",
       (p.outOfPocket ?? 0).toFixed(2),
       (p.totalYearCost ?? 0).toFixed(2),
       p.avgIncreasePct !== null && p.avgIncreasePct !== undefined ? p.avgIncreasePct.toFixed(1) : ""
