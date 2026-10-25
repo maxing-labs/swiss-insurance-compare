@@ -1,5 +1,7 @@
 import { I18N } from "./i18n/index.js";
 import { fmtChf, fmtSignedPct, esc } from "./format.js";
+import { buildLocationIndex, searchLocations } from "./location-search.js";
+import { calcOutOfPocket, enrichPlans, buildCurveSeries, findCrossover, buildInsurerMinMap, familyBundleTop5 } from "./calc.js";
 
 const STORAGE_KEY_PROFILES = "priminfo_pro_profiles_v2";
 const STORAGE_KEY_ACTIVE_STATE = "priminfo_pro_active_state_v2";
@@ -64,14 +66,6 @@ function isChildYob(yob) {
   return Number(yob) >= py - 18;
 }
 
-function calcOutOfPocket(medicalBills, franchise, isKid) {
-  const maxSelbstbehalt = isKid ? 350 : 700;
-  const partFranchise = Math.min(medicalBills, franchise);
-  const remaining = Math.max(0, medicalBills - partFranchise);
-  const partSelbstbehalt = Math.min(remaining * 0.1, maxSelbstbehalt);
-  return partFranchise + partSelbstbehalt;
-}
-
 function getAgeTagText(yob) {
   const dict = I18N[state.lang] || I18N.zh;
   const age = Math.max(0, getPremiumYear() - Number(yob));
@@ -90,22 +84,6 @@ function showToast(message) {
   setTimeout(() => {
     item.remove();
   }, 2600);
-}
-
-function normalizeSearchStr(str) {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .replace(/ä/g, "a")
-    .replace(/ö/g, "o")
-    .replace(/ü/g, "u")
-    .replace(/ae/g, "a")
-    .replace(/oe/g, "o")
-    .replace(/ue/g, "u")
-    .replace(/ß/g, "ss")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
 }
 
 function buildProfileLabel(locationName, yob, franchise, coverage) {
@@ -238,17 +216,6 @@ function persistProfiles() {
   } catch (e) {
     console.error("Failed to save profiles:", e);
   }
-}
-
-function buildInsurerMinMap(plans) {
-  const map = {};
-  for (const p of plans || []) {
-    if (p.monthlyNet === null || p.monthlyNet === undefined) continue;
-    if (map[p.insurer] === undefined || p.monthlyNet < map[p.insurer].monthlyNet) {
-      map[p.insurer] = { monthlyNet: p.monthlyNet, model: p.model };
-    }
-  }
-  return map;
 }
 
 function saveCurrentAsProfile() {
@@ -411,42 +378,19 @@ function renderProfileChipsAndCards() {
   }).join("");
 
   // Render Family Bundle Same-Insurer Totals when >= 2 profiles have insurerMinMap
-  const readyProfiles = state.savedProfiles.filter(p => p.insurerMinMap && Object.keys(p.insurerMinMap).length > 0);
-  if (readyProfiles.length >= 2) {
-    const allInsurers = Object.keys(readyProfiles[0].insurerMinMap);
-    const commonTotals = [];
-    for (const ins of allInsurers) {
-      let sumMonthly = 0;
-      let ok = true;
-      for (const rp of readyProfiles) {
-        const entry = rp.insurerMinMap[ins];
-        if (!entry) {
-          ok = false;
-          break;
-        }
-        sumMonthly += entry.monthlyNet;
-      }
-      if (ok) {
-        commonTotals.push({ insurer: ins, totalMonthly: sumMonthly, totalYearly: sumMonthly * 12 });
-      }
-    }
-    commonTotals.sort((a, b) => a.totalMonthly - b.totalMonthly);
-    const top5 = commonTotals.slice(0, 5);
-    if (top5.length > 0) {
-      famBox.classList.remove("hidden");
-      famBox.innerHTML = `
-        <div class="family-bundle-title">${dict.familyBundleTitle}</div>
-        <div class="family-bundle-chips">
-          ${top5.map((item, idx) => `
-            <span class="fb-pill ${idx === 0 ? "best" : ""}">
-              ${idx === 0 ? "★ " : `${idx + 1}. `}${esc(item.insurer)}: CHF ${fmtChf(item.totalMonthly)}${dict.perMonthShort} (CHF ${fmtChf(item.totalYearly, 0)}/yr)
-            </span>
-          `).join("")}
-        </div>
-      `;
-    } else {
-      famBox.classList.add("hidden");
-    }
+  const top5 = familyBundleTop5(state.savedProfiles);
+  if (top5.length > 0) {
+    famBox.classList.remove("hidden");
+    famBox.innerHTML = `
+      <div class="family-bundle-title">${dict.familyBundleTitle}</div>
+      <div class="family-bundle-chips">
+        ${top5.map((item, idx) => `
+          <span class="fb-pill ${idx === 0 ? "best" : ""}">
+            ${idx === 0 ? "★ " : `${idx + 1}. `}${esc(item.insurer)}: CHF ${fmtChf(item.totalMonthly)}${dict.perMonthShort} (CHF ${fmtChf(item.totalYearly, 0)}/yr)
+          </span>
+        `).join("")}
+      </div>
+    `;
   } else {
     famBox.classList.add("hidden");
   }
@@ -454,63 +398,7 @@ function renderProfileChipsAndCards() {
 
 function indexNormalizedLocations() {
   if (!state.locations?.names) return;
-  state.normalizedLocations = Object.entries(state.locations.names).map(([id, name]) => {
-    const normFull = normalizeSearchStr(name);
-    const plzMatch = name.match(/^(\d{4})\s+(.*)$/);
-    const plz = plzMatch ? plzMatch[1] : "";
-    const cityOnly = plzMatch ? normalizeSearchStr(plzMatch[2]) : normFull;
-    const words = normFull.split(/[\s,()/-]+/).filter(Boolean);
-    return { id, name, plz, cityOnly, normFull, words };
-  });
-}
-
-function searchLocations(query) {
-  if (!state.normalizedLocations.length || !query.trim()) {
-    return { matches: [], totalCount: 0 };
-  }
-  const qNorm = normalizeSearchStr(query);
-  const qWords = qNorm.split(/[\s,]+/).filter(Boolean);
-  if (qWords.length === 0) return { matches: [], totalCount: 0 };
-
-  const scored = [];
-
-  for (const loc of state.normalizedLocations) {
-    let allMatched = true;
-    let score = 0;
-
-    for (const qw of qWords) {
-      if (loc.plz === qw) {
-        score += 1000;
-      } else if (loc.cityOnly === qw) {
-        score += 900;
-      } else if (loc.plz.startsWith(qw)) {
-        score += 750;
-      } else if (loc.cityOnly.startsWith(qw)) {
-        score += 650;
-      } else if (loc.words.some(w => w === qw)) {
-        score += 550;
-      } else if (loc.words.some(w => w.startsWith(qw))) {
-        score += 350;
-      } else if (loc.normFull.includes(qw)) {
-        score += 150;
-      } else {
-        allMatched = false;
-        break;
-      }
-    }
-
-    if (allMatched) {
-      // Prefer shorter, primary city names on tie
-      score -= loc.name.length * 0.5;
-      scored.push({ id: loc.id, name: loc.name, score });
-    }
-  }
-
-  scored.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  return {
-    matches: scored.slice(0, 15),
-    totalCount: scored.length
-  };
+  state.normalizedLocations = buildLocationIndex(state.locations.names);
 }
 
 async function loadLocations() {
@@ -678,38 +566,12 @@ function setMedicalCost(cost) {
 
 function getEnrichedPlans() {
   if (!state.data?.plans) return [];
-  const isKid = isChildYob(state.yob);
-  const rebate = state.data.meta?.monthlyRebate ?? 4.75;
-  const franchises = state.data.meta?.franchises || [300, 500, 1000, 1500, 2000, 2500];
-  const outOfPocketSelected = calcOutOfPocket(state.medicalCost, state.franchise, isKid);
-
-  return state.data.plans.map((p, originalIdx) => {
-    const totalYearCost = (p.yearlyNet || 0) + outOfPocketSelected;
-
-    let bestFranchiseForPlan = state.franchise;
-    let minTotalForPlan = totalYearCost;
-
-    for (const f of franchises) {
-      const grossMonthly = p.matrixPrices?.[String(f)];
-      if (grossMonthly !== null && grossMonthly !== undefined) {
-        const netYearly = Math.max(0, (grossMonthly - rebate) * 12);
-        const oop = calcOutOfPocket(state.medicalCost, f, isKid);
-        const tot = netYearly + oop;
-        if (tot < minTotalForPlan) {
-          minTotalForPlan = tot;
-          bestFranchiseForPlan = f;
-        }
-      }
-    }
-
-    return {
-      ...p,
-      originalIdx,
-      outOfPocket: outOfPocketSelected,
-      totalYearCost,
-      bestFranchiseForPlan,
-      minTotalForPlan
-    };
+  return enrichPlans(state.data.plans, {
+    medicalCost: state.medicalCost,
+    franchise: state.franchise,
+    isKid: isChildYob(state.yob),
+    rebate: state.data.meta?.monthlyRebate ?? 4.75,
+    franchises: state.data.meta?.franchises || [300, 500, 1000, 1500, 2000, 2500]
   });
 }
 
@@ -886,28 +748,8 @@ function renderCurvesTab(plans, franchises, rebate, isKid) {
   const xPoints = [];
   for (let x = 0; x <= maxX; x += stepX) xPoints.push(x);
 
-  const seriesList = [];
-  for (const f of franchises) {
-    const grossMonthly = plan.matrixPrices?.[String(f)];
-    if (grossMonthly === null || grossMonthly === undefined) continue;
-    const netMonthly = Math.max(0, grossMonthly - rebate);
-    const netYearly = netMonthly * 12;
-    const points = xPoints.map(x => ({
-      x,
-      y: netYearly + calcOutOfPocket(x, f, isKid)
-    }));
-    const cursorOop = calcOutOfPocket(state.medicalCost, f, isKid);
-    const cursorTotal = netYearly + cursorOop;
-    seriesList.push({
-      franchise: f,
-      color: FRANCHISE_COLORS[f] || "#64748b",
-      netMonthly,
-      netYearly,
-      points,
-      cursorOop,
-      cursorTotal
-    });
-  }
+  const seriesList = buildCurveSeries(plan, { franchises, rebate, isKid, medicalCost: state.medicalCost, xPoints })
+    .map(s => ({ ...s, color: FRANCHISE_COLORS[s.franchise] || "#64748b" }));
 
   if (seriesList.length === 0) return;
 
@@ -933,17 +775,7 @@ function renderCurvesTab(plans, franchises, rebate, isKid) {
 
   const lowS = seriesList[0];
   const highS = seriesList[seriesList.length - 1];
-  let crossoverX = null;
-  if (lowS && highS && lowS.franchise !== highS.franchise) {
-    for (let x = 0; x <= maxX; x += 10) {
-      const yLow = lowS.netYearly + calcOutOfPocket(x, lowS.franchise, isKid);
-      const yHigh = highS.netYearly + calcOutOfPocket(x, highS.franchise, isKid);
-      if (yLow <= yHigh) {
-        crossoverX = x;
-        break;
-      }
-    }
-  }
+  const crossoverX = findCrossover(lowS, highS, isKid, maxX);
 
   const sortedAtCursor = [...seriesList].sort((a, b) => a.cursorTotal - b.cursorTotal);
   const bestAtCursor = sortedAtCursor[0];
@@ -1389,7 +1221,7 @@ function bindEvents() {
 
   const renderLocationDropdown = (query) => {
     const dict = I18N[state.lang] || I18N.zh;
-    const { matches, totalCount } = searchLocations(query);
+    const { matches, totalCount } = searchLocations(state.normalizedLocations, query);
     kbLocationIdx = -1;
     if (!query.trim()) {
       locDropdown.classList.add("hidden");
