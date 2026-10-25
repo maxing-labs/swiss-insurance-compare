@@ -23,4 +23,6 @@
 ## 文档
 
 - 统一放在 `.agents/docs/`，文件名格式为 `yymmdd-主题.md`。
+- **session 开始**：先读日期最新的 `yymmdd-session-*.md`，接上上次的进度。
+- **session 结束**：任务完成、给出最终答复之前，新增一份 `yymmdd-session-主题.md`，写清四项：目标、完成内容（附提交 hash）、关键决策及原因、遗留问题与下一步。同一个 session 里已经写过的，就更新那一份。
 - 改架构或修已知问题之前，先读架构评审 `.agents/docs/261025-architecture-review.md`。问题按 P0/P1/P2 编号，行号对应文中注明的基准提交。
