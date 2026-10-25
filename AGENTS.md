@@ -5,6 +5,7 @@
 ## 运行
 
 - 本地：`python3 server.py` → http://127.0.0.1:8765
+- 测试：`python3 -m unittest`（不联网，用 `tests/fixtures/` 里的上游快照）。上游改版或每年 9 月更新数据后，用 `python3 -m tests.make_fixtures` 重新生成快照（需联网），再按新数据修正测试
 - 线上：Vercel，路由见 `vercel.json`
 
 ## 约定
