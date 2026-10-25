@@ -111,7 +111,12 @@ static/js/
 
 ### 其他
 
-- **还没在真实 Vercel 上验证**：线上目前返回 `.js` 时是 `application/javascript`、`max-age=0, must-revalidate`，本地模拟重写规则也全部正常。如需完全确认，可以部署一个 preview（属于对外操作，要先征得用户同意）
+- **已在 Vercel preview 上验证**（用户同意后部署，HEAD `7d2f2e4`，`vercel deploy`，未 promote 到生产）
+  - 地址：`swiss-insurance-compare-refjhemyq-jddymx-8366s-projects.vercel.app`，没有开启访问保护
+  - `/js/main.js`、`/js/views/*.js`、`/js/i18n/*.js` 均为 200，Content-Type 为 `application/javascript`，缓存头为 `max-age=0, must-revalidate`
+  - `VISIBLE=1` 快照 63/63 与 `cf734e7` 一致；错误路径 9/9 一致；控制台无报错
+  - preview 页面会注入 `vercel.live` 反馈脚本，生产环境没有；快照比对时会去掉 script 标签
+  - 生产环境仍是拆分前的版本，上线需要执行 `vercel deploy --prod`，或在 Vercel 控制台 promote 这次部署
 - **模块请求有瀑布**：main → controller → views，3 层、17 个文件。HTTP/2 下问题不大，如果首屏慢，可以在 `index.html` 加 `<link rel="modulepreload">`
 - **大表格仍然慢**：排行展开全部 128 行时，每次滑块事件约 14ms，主要花在可见表格的 layout 上；如需优化，可以只更新受医疗费影响的两列，或者节流
 - **验证脚本放在 `/tmp/priminfo-split/scripts/`，没有入库**
