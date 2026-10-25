@@ -28,6 +28,7 @@ const I18N = {
     appSubtitle: "BAG 2027 官方数据 · 更新于 2026-09",
     statusReady: "已同步",
     statusLoading: "同步中...",
+    statusError: "同步失败",
     lblProfiles: "档案",
     btnSaveProfile: "+ 保存当前配置",
     mobileCollapseOpen: "收起筛选 ▲",
@@ -129,6 +130,7 @@ const I18N = {
     toastKeepOneProfile: "至少需保留一个档案",
     toastKeepOneModel: "至少需勾选一个医保模型",
     toastInvalidYob: "请输入 1900–2027 之间的有效出生年份",
+    toastLoadFailed: "数据加载失败，请稍后重试",
     catLabels: {
       BASE: "Standard",
       TEL_DIG: "TEL-DIG",
@@ -223,6 +225,7 @@ const I18N = {
     appSubtitle: "BAG 2027 Official Data · Updated 2026-09",
     statusReady: "Synced",
     statusLoading: "Syncing...",
+    statusError: "Sync failed",
     lblProfiles: "Profiles",
     btnSaveProfile: "+ Save Profile",
     mobileCollapseOpen: "Hide Filters ▲",
@@ -324,6 +327,7 @@ const I18N = {
     toastKeepOneProfile: "At least one profile must remain",
     toastKeepOneModel: "At least one model filter must remain selected",
     toastInvalidYob: "Please enter a birth year between 1900 and 2027",
+    toastLoadFailed: "Failed to load data, please try again later",
     catLabels: {
       BASE: "Standard",
       TEL_DIG: "TEL-DIG",
@@ -418,6 +422,7 @@ const I18N = {
     appSubtitle: "BAG 2027 Offizielle Daten · Stand 2026-09",
     statusReady: "Synchron",
     statusLoading: "Lädt...",
+    statusError: "Ladefehler",
     lblProfiles: "Profile",
     btnSaveProfile: "+ Profil speichern",
     mobileCollapseOpen: "Filter ▲",
@@ -519,6 +524,7 @@ const I18N = {
     toastKeepOneProfile: "Mindestens ein Profil muss erhalten bleiben",
     toastKeepOneModel: "Mindestens ein Modell muss ausgewählt sein",
     toastInvalidYob: "Bitte einen gültigen Jahrgang (1900–2027) eingeben",
+    toastLoadFailed: "Daten konnten nicht geladen werden, bitte später erneut versuchen",
     catLabels: {
       BASE: "Standard",
       TEL_DIG: "TEL-DIG",
@@ -1109,6 +1115,7 @@ function searchLocations(query) {
 async function loadLocations() {
   try {
     const res = await fetch("/api/locations");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.locations = await res.json();
     indexNormalizedLocations();
     if (state.locations?.names?.[state.locationId]) {
@@ -1119,6 +1126,7 @@ async function loadLocations() {
     }
   } catch (e) {
     console.error("Failed to load locations:", e);
+    showToast(I18N[state.lang].toastLoadFailed);
   }
 }
 
@@ -1131,6 +1139,7 @@ async function updateFranchisesForYob(yob) {
     const res = await fetch(`/api/franchises?yob=${encodeURIComponent(yob)}`, {
       signal: franAbortCtrl.signal
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (seq !== franFetchSeq) return;
 
@@ -1154,6 +1163,7 @@ async function updateFranchisesForYob(yob) {
   } catch (e) {
     if (e.name !== "AbortError") {
       console.error("Failed to load franchises:", e);
+      showToast(I18N[state.lang].toastLoadFailed);
     }
   }
 }
@@ -1166,6 +1176,8 @@ async function fetchAndRenderCalculation() {
   const badge = document.getElementById("status-badge");
   badge.textContent = I18N[state.lang].statusLoading;
   badge.classList.add("loading");
+  badge.classList.remove("error");
+  let failed = false;
 
   try {
     const params = new URLSearchParams({
@@ -1178,6 +1190,7 @@ async function fetchAndRenderCalculation() {
     const res = await fetch(`/api/calculate?${params.toString()}`, {
       signal: calcAbortCtrl.signal
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
 
     // Discard stale out-of-order responses
@@ -1209,10 +1222,16 @@ async function fetchAndRenderCalculation() {
   } catch (e) {
     if (e.name === "AbortError") return;
     console.error("Calculation error:", e);
+    failed = true;
+    showToast(I18N[state.lang].toastLoadFailed);
   } finally {
     if (seq === calcFetchSeq) {
-      badge.textContent = I18N[state.lang].statusReady;
+      // Keep data-i18n in sync so a language switch keeps showing the failure
+      const statusKey = failed ? "statusError" : "statusReady";
+      badge.dataset.i18n = statusKey;
+      badge.textContent = I18N[state.lang][statusKey];
       badge.classList.remove("loading");
+      badge.classList.toggle("error", failed);
     }
   }
 }

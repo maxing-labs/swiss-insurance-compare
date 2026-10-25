@@ -142,6 +142,11 @@ body {
   color: var(--amber-warn);
 }
 
+.status-pill.error {
+  background: var(--red-bg);
+  color: var(--red-bad);
+}
+
 .lang-switch {
   display: inline-flex;
   border: 1px solid var(--border-hairline);
