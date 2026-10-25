@@ -13,7 +13,7 @@
 - **API 逻辑只放在 `api/index.py`**（`handle_api_request`）。`server.py` 只是本地开发的包装层。
 - **i18n**：用户可见的文本统一放进 `static/app.js` 的 `I18N`，zh / en / de 三种语言同时补齐。
 - **上游解析很脆弱**：解析器靠表格下标和列位置取数。改动解析逻辑后要用真实上游请求验证，`/api/calculate` 返回的 `plans` 应非空且各字段有值。
-- **CDN 缓存**：API 成功响应带 `s-maxage=3600`，会在边缘缓存 1 小时。错误或空结果必须返回非 2xx 状态，避免被缓存（当前代码还没做到，见评审 P0 #1）。
+- **CDN 缓存**：API 成功响应带 `s-maxage=3600`，会在边缘缓存 1 小时。错误或解析为空的结果必须返回非 2xx，避免被缓存：抛 `EmptyResultError`，返回 502 且不带缓存头。例外：上游明确提示「keine Prämien」（如只勾 PHARM）属于合法的空结果，仍返回 200。
 - **年度数据**：`premiumYear`、`dataPublished` 写死在 `api/index.py` 的 `meta` 和多处前端常量里。上游每年 9 月发布新年度保费时要同步更新（位置清单见评审 #14）。
 
 ## 协作
