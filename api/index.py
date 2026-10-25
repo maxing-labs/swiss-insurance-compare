@@ -13,6 +13,10 @@ CACHE = {}
 CACHE_TTL = 3600
 
 
+class EmptyResultError(Exception):
+    """Upstream page parsed to nothing (layout change or error page); served as 502 without cache headers."""
+
+
 def fetch_upstream(path_with_query: str) -> str:
     now = time.time()
     if path_with_query in CACHE:
@@ -259,7 +263,10 @@ def classify_model_type(model_name: str) -> str:
 
 def handle_api_request(path: str, qs: dict) -> dict:
     if path == "/api/locations":
-        return get_locations_json()
+        data = get_locations_json()
+        if not data.get("names"):
+            raise EmptyResultError(f"Empty upstream result: {path}")
+        return data
 
     elif path == "/api/insurers":
         loc = qs.get("location", [""])[0]
@@ -279,7 +286,10 @@ def handle_api_request(path: str, qs: dict) -> dict:
     elif path == "/api/franchises":
         yob = qs.get("yob", ["1990"])[0]
         raw = fetch_upstream(f"/de/praemien/franchises?yob={urllib.parse.quote(yob)}")
-        return {"franchises": parse_select_options(raw)}
+        franchises = parse_select_options(raw)
+        if not franchises:
+            raise EmptyResultError(f"Empty upstream result: {path}")
+        return {"franchises": franchises}
 
     elif path == "/api/calculate":
         loc = qs.get("location_id", ["80011450512497"])[0]
@@ -318,6 +328,11 @@ def handle_api_request(path: str, qs: dict) -> dict:
         savings_list = parse_savings_html(sav_html)
         comparison_data = parse_comparison_html(cmp_html)
         change_data = parse_change_html(chg_html)
+
+        # Upstream says "keine Prämien" when the chosen model categories have no premiums this year (e.g. PHARM only)
+        no_premiums = not savings_list and "keine Prämien" in sav_html
+        if not no_premiums and not (savings_list and comparison_data["rows"] and change_data["rows"]):
+            raise EmptyResultError(f"Empty upstream result: {path}")
 
         matrix_map = {(r["insurer"], r["model"]): r["prices"] for r in comparison_data["rows"]}
         change_map = {
@@ -369,7 +384,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
         except Exception as e:
             body = json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8")
-            self.send_response(500)
+            self.send_response(502 if isinstance(e, EmptyResultError) else 500)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(body)

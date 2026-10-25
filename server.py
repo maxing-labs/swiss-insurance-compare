@@ -7,7 +7,7 @@ import json
 import urllib.parse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from api.index import handle_api_request
+from api.index import EmptyResultError, handle_api_request
 
 
 class PriminfoHandler(SimpleHTTPRequestHandler):
@@ -31,7 +31,8 @@ class PriminfoHandler(SimpleHTTPRequestHandler):
                 data = handle_api_request(parsed.path, qs)
                 return self.send_json(data)
             except Exception as e:
-                return self.send_json({"error": str(e)}, status=500)
+                status = 502 if isinstance(e, EmptyResultError) else 500
+                return self.send_json({"error": str(e)}, status=status)
         return super().do_GET()
 
 
