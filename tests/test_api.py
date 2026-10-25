@@ -169,6 +169,11 @@ class VercelHandlerTest(unittest.TestCase):
                 self.assertEqual(status, 502)
                 self.assertIsNone(cache_control)
 
+    def test_unknown_endpoint_is_404_without_cache(self):
+        status, cache_control, _ = self.get("/api/nope")
+        self.assertEqual(status, 404)
+        self.assertIsNone(cache_control)
+
 
 class LocalServerTest(VercelHandlerTest):
     """Same checks against server.py; it never sends Cache-Control."""
