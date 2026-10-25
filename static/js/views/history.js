@@ -4,7 +4,7 @@ import { state } from "../state.js";
 import { CHART_THEME } from "./chart-theme.js";
 
 const HISTORY_LINE_COLORS = [
-  "#dc2626", "#2563eb", "#059669", "#d97706",
+  "#dc2626", "#2563eb", "#059669", "#b45309",
   "#7c3aed", "#0891b2", "#be185d", "#4b5563"
 ];
 
