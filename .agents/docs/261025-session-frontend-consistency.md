@@ -134,13 +134,22 @@
 
 上次的 `/tmp/priminfo-split/scripts/`（golden.js、compare.js、vercel_emu.py 等）仍在使用。
 
-### 部署
+### 部署（经用户同意）
 
-- 本次没有部署；生产环境仍是 `db2b94e`
-- 部署前先问用户
+- **preview**
+  - HEAD `2347de2`，执行 `vercel deploy`
+  - 地址 `swiss-insurance-compare-mmpmmb8rc-jddymx-8366s-projects.vercel.app`，没有开启访问保护
+- **生产**
+  - preview 验证通过后，在同一个 HEAD 上执行 `vercel deploy --prod`
+  - 部署地址 `swiss-insurance-compare-a7hftjm1j-jddymx-8366s-projects.vercel.app`，别名 `swiss-insurance-compare.vercel.app`
+- **两个环境的验证结果相同**
+  - 页面和 `/js/*.js` 均为 200，JS 的 Content-Type 为 `application/javascript`；线上已是新代码（`calc.js` 含 `netYearlyAt`）
+  - `VISIBLE=1` 快照 63/63 与本地 `item7` 一致
+  - 错误路径 9/9 一致，控制台无报错
+  - e2e 18/18 通过（`BASE=` 指向部署地址）
+- **回滚**：在 Vercel 控制台把上一个生产部署（`db2b94e`）promote 回来，或执行 `vercel rollback`
 
 ### 下一步建议
 
-1. 部署：先 preview，再 production，用 golden 和 e2e 复验（e2e 用 `BASE=` 指向部署地址）
-2. 后端：#8 改用上游 `optgroup` 的官方模型分类（顺带解决 PHARM 误判），#16 死接口
-3. 维护：#14 集中管理魔法值（含上面第 6 条和上次的第 11 条），#17 统一入口（含上面第 2 条）
+1. 后端：#8 改用上游 `optgroup` 的官方模型分类（顺带解决 PHARM 误判），#16 死接口
+2. 维护：#14 集中管理魔法值（含上面第 6 条和上次的第 11 条），#17 统一入口（含上面第 2 条）
