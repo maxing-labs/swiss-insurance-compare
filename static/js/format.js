@@ -22,3 +22,11 @@ export function esc(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+export function getTrendBadgeHtml(pct) {
+  if (pct === null || pct === undefined || isNaN(pct)) return `<span class="trend-badge">—</span>`;
+  let cls = "trend-mid";
+  if (pct <= 5.2) cls = "trend-low";
+  else if (pct >= 6.5) cls = "trend-high";
+  return `<span class="trend-badge ${cls}">${fmtSignedPct(pct, 1)}</span>`;
+}
