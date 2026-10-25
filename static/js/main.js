@@ -1,6 +1,7 @@
 import { I18N } from "./i18n/index.js";
 import { fmtChf, fmtSignedPct, esc } from "./format.js";
 import { buildLocationIndex, searchLocations } from "./location-search.js";
+import { fetchLocations, fetchFranchises, fetchCalculation } from "./api.js";
 import { calcOutOfPocket, buildCurveSeries, findCrossover, buildInsurerMinMap, familyBundleTop5 } from "./calc.js";
 import {
   state,
@@ -248,9 +249,7 @@ function indexNormalizedLocations() {
 
 async function loadLocations() {
   try {
-    const res = await fetch("/api/locations");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    state.locations = await res.json();
+    state.locations = await fetchLocations();
     indexNormalizedLocations();
     if (state.locations?.names?.[state.locationId]) {
       state.locationName = state.locations.names[state.locationId];
@@ -270,11 +269,7 @@ async function updateFranchisesForYob(yob) {
   franAbortCtrl = new AbortController();
 
   try {
-    const res = await fetch(`/api/franchises?yob=${encodeURIComponent(yob)}`, {
-      signal: franAbortCtrl.signal
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await fetchFranchises(yob, franAbortCtrl.signal);
     if (seq !== franFetchSeq) return;
 
     const sel = document.getElementById("franchise-select");
@@ -314,18 +309,7 @@ async function fetchAndRenderCalculation() {
   let failed = false;
 
   try {
-    const params = new URLSearchParams({
-      location_id: state.locationId,
-      yob: String(state.yob),
-      franchise: String(state.franchise),
-      coverage: String(state.coverage),
-      models: state.models.join(",")
-    });
-    const res = await fetch(`/api/calculate?${params.toString()}`, {
-      signal: calcAbortCtrl.signal
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
+    const json = await fetchCalculation(state, calcAbortCtrl.signal);
 
     // Discard stale out-of-order responses
     if (seq !== calcFetchSeq) return;
