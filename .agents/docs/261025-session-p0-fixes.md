@@ -14,6 +14,7 @@
 | 2 | `4fa2ed5` | 三处 fetch 都先检查 `res.ok`，失败时弹 Toast（`toastLoadFailed`），保留旧数据。计算请求失败时徽标显示红色「同步失败」（`statusError`、`.status-pill.error`） |
 | 3 | `a9e79b3` | 新增 `esc()`，覆盖公司名、方案名、地名和地点 id，以及由它们派生的档案标签和最优方案摘要。`insurerUrl` 只渲染 http(s) 链接 |
 | 4 | `dc0e99f` | `setMedicalCost` 改为调用 `saveActiveStateDebounced()`（500ms），覆盖滑块、快捷下拉框、预设按钮和曲线图拖动 |
+| — | `9e3ac09` | 新增 `CLAUDE.md`，内容只有 `@AGENTS.md` |
 
 验证结果（均在本地 `python3 server.py` 上完成）：
 
@@ -21,7 +22,7 @@
 - #2：计算接口 502 时 `state.data` 和表格不变，出现 Toast，徽标为「同步失败」，切换语言后文案跟着变，下次成功后恢复。locations 和 franchises 失败时，下拉框不再被清空（改动前会被清空）
 - #3：用构造的恶意上游数据测试，改动前触发 26 次 alert、注入 15 个 img；改动后为 0，payload 按原文显示，`javascript:` 链接不再渲染。真实数据回归正常（25 条链接都在，地点搜索和切换正常）
 - #4：逐帧拖动滑块 200 帧，改动前写入 200 次，改动后 1 次；曲线图拖动从 61 次降到 1 次；刷新后能恢复最终值
-- 每条提交后都在 HEAD 上把以上测试全部重跑过一遍
+- 每条都在提交前单独验证；四条都提交后，又在 HEAD 上把以上测试全部重跑了一遍
 
 验证脚本放在 `/tmp/priminfo-verify/`，没有入库：
 
@@ -51,6 +52,8 @@
 - **debounce 放在 `setMedicalCost` 一处**
   - 所有医疗费输入都经过这里。页面上没有医疗费文本输入框，用户说的「输入框」对应快捷下拉框
   - 选 500ms 而不是 300ms：300ms 的尾部 debounce 在极端操作下理论上仍可能达到 30 秒 100 次
+- **`CLAUDE.md` 只写 `@AGENTS.md`**（用户要求新增）
+  - Claude Code 只自动加载 `CLAUDE.md`；用 import 的方式，规则只需在 `AGENTS.md` 一处维护
 
 ## 遗留问题与下一步
 
@@ -63,7 +66,10 @@
   - `/api/insurers`、`/api/plans` 没有加空结果检查（#16，死接口）
 - **只勾 PHARM 时部分区块停在旧画面**：KPI、曲线图、历史图会保留上一次的内容，原因是 `renderAll` 各函数在数据为空时直接 return（原有行为）
   - 另外，前端的 PHARM 类别是按关键词猜的（#8），有 4 个方案被归为 PHARM，上游却不这样分类
-- **上一个 session 留下的两个问题仍待用户决定**
-  - `~/projs/dev-playground/priminfo-pro` 旧副本删除还是保留
-  - 是否新增 `CLAUDE.md`
+- **旧副本是否删除仍待用户决定**
+  - 位置：`~/projs/dev-playground/priminfo-pro`；本仓库在 `~/projs/playground/priminfo-pro`
+  - 内容：10/22–23 的早期版本，后端全写在 `server.py`，没有 `api/` 和 `vercel.json`
+  - 它不在 git 里，删除后无法恢复
+  - 以下两个不是副本：`~/projs/playground/AGENTS.md` 是 playground 的通用技巧，`~/projs/dev-playground/priminfo-themes` 是主题样式草稿
+- **还没有 push**：仓库没有配置远程，GitHub 上也没有同名仓库，用户决定暂不 push
 - **下一步**：按评审的建议顺序做 #13（fixture 测试），可以参考上面的 harness 思路
