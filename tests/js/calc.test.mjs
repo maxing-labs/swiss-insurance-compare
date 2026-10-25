@@ -133,3 +133,40 @@ test("familyBundleTop5: insurers common to all profiles, cheapest combined premi
   for (const t of top) assert.equal(t.totalYearly, t.totalMonthly * 12);
   assert.deepEqual(top[0], { insurer: "B", totalMonthly: 151, totalYearly: 1812 });
 });
+
+test("enrichPlans: the selected franchise is priced from matrixPrices like every other franchise", () => {
+  const [a] = enrichPlans([{ ...telmed, yearlyNet: 9999 }], { medicalCost: 1000, franchise: 2500, isKid: false, rebate: REBATE, franchises: [300, 2500] });
+  assert.equal(a.totalYearCost, (300 - REBATE) * 12 + 1000);
+  assert.equal(a.bestFranchiseForPlan, 2500);
+});
+
+test("enrichPlans: without a price at the selected franchise there is no total, and the best franchise is the cheapest offered", () => {
+  // children at F600 (2027): Helsana offers only F0 and F500, upstream sends no premium
+  const kid = { monthlyNet: null, yearlyNet: null, matrixPrices: { 0: 127.8, 100: null, 500: 100.8, 600: null } };
+  const [p] = enrichPlans([kid], { medicalCost: 500, franchise: 600, isKid: true, rebate: 4.75, franchises: [0, 100, 500, 600] });
+  assert.equal(p.totalYearCost, null);
+  // F0: 123.05 * 12 + 50 = 1526.6; F500: 96.05 * 12 + 500 = 1652.6
+  assert.equal(p.bestFranchiseForPlan, 0);
+  assert.equal(Math.round(p.minTotalForPlan * 100), 152660);
+
+  const [none] = enrichPlans([{ matrixPrices: {} }], { medicalCost: 500, franchise: 600, isKid: true, rebate: 4.75, franchises: [0, 600] });
+  assert.deepEqual([none.totalYearCost, none.bestFranchiseForPlan, none.minTotalForPlan], [null, null, null]);
+});
+
+test("enrichPlans: totals equal to the Rappen tie, whatever the float noise, and the selected franchise wins", () => {
+  // real 2027 premiums (Appenzell, born 2005); each pair costs the same to the Rappen at that bill
+  const opts = { isKid: false, rebate: 4.75, franchises: [300, 2500] };
+  // F2500: 174.65 * 12 + 1900 = 3995.80; F300: 294.65 * 12 + 300 + 160 = 3995.80 (3995.7999999999997 in floats)
+  const visana = { yearlyNet: 2095.8, matrixPrices: { 300: 299.4, 2500: 179.4 } };
+  assert.equal(enrichPlans([visana], { ...opts, medicalCost: 1900, franchise: 2500 })[0].bestFranchiseForPlan, 2500);
+  // F300: 279.35 * 12 + 300 + 142 = 3794.20 (3794.2000000000003); F2500: 172.85 * 12 + 1720 = 3794.20
+  const helsana = { yearlyNet: 3352.2, matrixPrices: { 300: 284.1, 2500: 177.6 } };
+  assert.equal(enrichPlans([helsana], { ...opts, medicalCost: 1720, franchise: 300 })[0].bestFranchiseForPlan, 300);
+});
+
+test("findCrossover: totals equal to the Rappen count as crossed, whatever the float noise", () => {
+  const plan = { matrixPrices: { 300: 284.1, 2500: 177.6 } };
+  const [low, high] = buildCurveSeries(plan, { franchises: [300, 2500], rebate: 4.75, isKid: false, medicalCost: 0, xPoints: [0] });
+  // both cost CHF 3'794.20 at CHF 1'720 of bills
+  assert.equal(findCrossover(low, high, false, 6000), 1720);
+});

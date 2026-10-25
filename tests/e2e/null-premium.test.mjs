@@ -79,6 +79,20 @@ test("ranking and matrix list plans without a premium last", { skip }, async () 
   assert.deepEqual(matrix.slice(-2).sort(), blank.map(b => `${b.insurer}|${b.model}`).sort());
 });
 
+test("sorted by total cost, plans without a premium go last and show no total", { skip }, async () => {
+  const { page, blank, count } = await openWithBlankedPlans();
+  await page.selectOption("#sort-select", "totalYearCost");
+  await page.click("#btn-load-more");
+  const rows = await page.evaluate(() => [...document.querySelectorAll("#ranking-tbody tr")].map(tr => ({
+    name: `${tr.querySelector("th").textContent.trim()}|${tr.querySelector("th + td").textContent.trim()}`,
+    total: tr.querySelector(".highlight-col").textContent.trim()
+  })));
+  assert.equal(rows.length, count);
+  assert.deepEqual(rows.slice(-2).map(r => r.name).sort(), blank.map(b => `${b.insurer}|${b.model}`).sort());
+  assert.deepEqual(rows.slice(-2).map(r => r.total), ["—", "—"]);
+  assert.ok(rows.slice(0, -2).every(r => /^CHF \d/.test(r.total)));
+});
+
 test("CSV export leaves the premium cells of plans without a premium empty", { skip }, async () => {
   const { page, blank, cheapest } = await openWithBlankedPlans();
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#btn-export-csv")]);
@@ -92,6 +106,7 @@ test("CSV export leaves the premium cells of plans without a premium empty", { s
     const row = rows.find(r => r.Insurer === b.insurer && r.Plan === b.model);
     assert.equal(row.MonthlyNet_CHF, "", `${b.insurer} ${b.model}`);
     assert.equal(row.YearlyNet_CHF, "", `${b.insurer} ${b.model}`);
+    assert.equal(row.TotalAnnualCost_CHF, "", `${b.insurer} ${b.model}`);
   }
   assert.equal(rows[0].Insurer, cheapest.insurer);
   assert.equal(rows[0].MonthlyNet_CHF, cheapest.monthlyNet.toFixed(2));

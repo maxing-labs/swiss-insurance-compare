@@ -99,7 +99,7 @@ export function renderRankingTable(plans) {
         <td class="num-col" data-label="${dict.thMonthlyNet}"><strong>${fmtChf(p.monthlyNet)}</strong></td>
         <td class="num-col" data-label="${dict.thYearlyNet}">${fmtChf(p.yearlyNet)}</td>
         <td class="num-col" data-label="${dict.thOutOfPocket}">${fmtChf(p.outOfPocket)}</td>
-        <td class="num-col highlight-col" data-label="${dict.thTotalRealCost}">CHF ${fmtChf(p.totalYearCost)}</td>
+        <td class="num-col highlight-col" data-label="${dict.thTotalRealCost}">${p.totalYearCost === null ? "—" : `CHF ${fmtChf(p.totalYearCost)}`}</td>
         <td class="num-col" data-label="${dict.th5YrAvg}" title="${dict.th5YrTooltip}">${getTrendBadgeHtml(p.avgIncreasePct)}</td>
         <td class="num-col" data-label="${dict.thCurveAction}">
           <button type="button" class="btn-curve-jump" data-plan-idx="${p.originalIdx}">${dict.btnSeeCurve}</button>
@@ -129,7 +129,7 @@ export function exportRankingToCsv() {
       p.monthlyNet !== null && p.monthlyNet !== undefined ? p.monthlyNet.toFixed(2) : "",
       p.yearlyNet !== null && p.yearlyNet !== undefined ? p.yearlyNet.toFixed(2) : "",
       (p.outOfPocket ?? 0).toFixed(2),
-      (p.totalYearCost ?? 0).toFixed(2),
+      p.totalYearCost !== null ? p.totalYearCost.toFixed(2) : "",
       p.avgIncreasePct !== null && p.avgIncreasePct !== undefined ? p.avgIncreasePct.toFixed(1) : ""
     ];
     lines.push(row.join(","));

@@ -1,6 +1,6 @@
 import { I18N } from "../i18n/index.js";
 import { fmtChf, esc } from "../format.js";
-import { calcOutOfPocket } from "../calc.js";
+import { calcOutOfPocket, netYearlyAt } from "../calc.js";
 import { state, filterAndSortPlans } from "../state.js";
 
 export function renderMatrixTable(plans, franchises, rebate, isKid) {
@@ -30,7 +30,7 @@ export function renderMatrixTable(plans, franchises, rebate, isKid) {
         const netMonthly = Math.max(0, grossMonthly - rebate);
         return `<td class="${cls}" data-label="F ${f}">${fmtChf(netMonthly)}</td>`;
       } else {
-        const netYearly = Math.max(0, (grossMonthly - rebate) * 12);
+        const netYearly = netYearlyAt(p, f, rebate);
         const oop = calcOutOfPocket(state.medicalCost, f, isKid);
         return `<td class="${cls}" data-label="F ${f}">${fmtChf(netYearly + oop, 0)}</td>`;
       }

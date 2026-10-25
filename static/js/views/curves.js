@@ -75,7 +75,8 @@ export function renderCurvesTab(plans, franchises, rebate, isKid) {
   const crossoverX = findCrossover(lowS, highS, isKid, maxX);
 
   const sortedAtCursor = [...seriesList].sort((a, b) => a.cursorTotal - b.cursorTotal);
-  const bestAtCursor = sortedAtCursor[0];
+  // The same best franchise as the matrix: enrichPlans compares to the Rappen and keeps the selected one on a tie
+  const bestAtCursor = seriesList.find(s => s.franchise === plan.bestFranchiseForPlan);
   const worstAtCursor = sortedAtCursor[sortedAtCursor.length - 1];
 
   const vTitle = document.getElementById("verdict-title");
