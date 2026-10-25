@@ -20,9 +20,10 @@
 目录调整（不涉及提交，用户要求工作目录放在 dev-playground）：
 
 - 仓库从 `~/projs/playground/priminfo-pro` 移到 `~/projs/dev-playground/priminfo-pro`；`.git` 和 `.vercel` 随目录一起移动
-- 原来占着这个位置的旧副本改名为 `~/projs/dev-playground/priminfo-pro-old`，没有删除
+- 原来占着这个位置的旧副本先改名为 `priminfo-pro-old`，之后按用户要求用 `trash` 移进了废纸篓（可恢复）
 - `~/projs/dev-playground/priminfo-themes/PROMPT-apply-theme-e.md` 里的仓库路径同步改为新位置
 - 移动后在新位置启动 `server.py`：首页和 `/api/calculate` 正常，浏览器冒烟测试通过
+- `~/projs/playground/AGENTS.md` 并入 `~/projs/dev-playground/AGENTS.md`：只并入 Vercel 托管一节；Cloudflare 隧道一节与已有内容重复，没有并入
 
 验证结果（均在本地 `python3 server.py` 上完成）：
 
@@ -62,8 +63,10 @@
   - 选 500ms 而不是 300ms：300ms 的尾部 debounce 在极端操作下理论上仍可能达到 30 秒 100 次
 - **`CLAUDE.md` 只写 `@AGENTS.md`**（用户要求新增）
   - Claude Code 只自动加载 `CLAUDE.md`；用 import 的方式，规则只需在 `AGENTS.md` 一处维护
-- **移动仓库时，旧副本改名而不是删除**
-  - 新位置被旧副本占着；旧副本不在 git 里，删除后无法恢复，所以先改名保留，删不删由用户决定
+- **移动仓库时，旧副本先改名而不是删除**
+  - 新位置被旧副本占着；旧副本不在 git 里，删除后无法恢复，所以先改名保留，等用户确认后才删
+- **playground 的 AGENTS.md 采用合并而不是移动**
+  - dev-playground 下已有 AGENTS.md，直接移动会覆盖；新并入的内容按目标文件的中文风格改写，命令和 JSON 原样保留
 
 ## 遗留问题与下一步
 
@@ -76,12 +79,7 @@
   - `/api/insurers`、`/api/plans` 没有加空结果检查（#16，死接口）
 - **只勾 PHARM 时部分区块停在旧画面**：KPI、曲线图、历史图会保留上一次的内容，原因是 `renderAll` 各函数在数据为空时直接 return（原有行为）
   - 另外，前端的 PHARM 类别是按关键词猜的（#8），有 4 个方案被归为 PHARM，上游却不这样分类
-- **旧副本是否删除仍待用户决定**
-  - 位置：`~/projs/dev-playground/priminfo-pro-old`（原名 `priminfo-pro`，为给本仓库腾位置而改名）
-  - 内容：10/22–23 的早期版本，后端全写在 `server.py`，没有 `api/` 和 `vercel.json`
-  - 它不在 git 里，删除后无法恢复
-  - `~/projs/dev-playground/priminfo-themes` 是主题样式草稿，不是副本
-- **`~/projs/playground/` 只剩 `AGENTS.md`**：内容是 playground 的通用技巧（Cloudflare 隧道、Vercel 部署），不是副本；是否迁到 dev-playground 或删除待用户决定
+- **`~/projs/playground/` 还留着原始的 `AGENTS.md`**：独有内容已并入 dev-playground，删除这个目录需要用户确认（之前尝试删除时被 auto mode 安全分类器拦截）
 - **Paseo 里最早建站的 agent（f002868）上下文中仍是旧路径**：它写的主题 prompt 已改为新路径，但如果继续和它对话，需要告诉它仓库已移动
 - **还没有 push**：仓库没有配置远程，GitHub 上也没有同名仓库，用户决定暂不 push
 - **下一步**：按评审的建议顺序做 #13（fixture 测试），可以参考上面的 harness 思路
