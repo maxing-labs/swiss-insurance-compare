@@ -6,7 +6,7 @@ import { showToast } from "./views/toast.js";
 import { getAgeTagText, syncFormControlsFromState, updateMobileCollapseLabel } from "./views/controls.js";
 import { renderRankingTable, exportRankingToCsv } from "./views/ranking.js";
 import {
-  renderAll,
+  invalidateTabs,
   loadLocations,
   updateFranchisesForYob,
   fetchAndRenderCalculation,
@@ -269,7 +269,7 @@ function bindEvents() {
 
   document.getElementById("curve-plan-select").addEventListener("change", (e) => {
     state.selectedCurvePlanIdx = Number(e.target.value);
-    renderAll();
+    invalidateTabs(["curves"]);
   });
 
   document.getElementById("ranking-tbody").addEventListener("click", (e) => {
@@ -282,7 +282,7 @@ function bindEvents() {
     if (!btn) return;
     state.selectedCurvePlanIdx = Number(btn.dataset.planIdx);
     document.getElementById("curve-plan-select").value = String(state.selectedCurvePlanIdx);
-    renderAll();
+    invalidateTabs(["curves"]);
     switchTab("curves");
   });
 
@@ -304,24 +304,24 @@ function bindEvents() {
     if (!tr) return;
     state.selectedCurvePlanIdx = Number(tr.dataset.planIdx);
     document.getElementById("curve-plan-select").value = String(state.selectedCurvePlanIdx);
-    renderAll();
+    invalidateTabs(["curves"]);
     switchTab("curves");
   });
 
   document.getElementById("search-filter").addEventListener("input", (e) => {
     state.searchQuery = e.target.value;
-    renderAll();
+    invalidateTabs(["ranking", "matrix", "history"]);
   });
 
   document.getElementById("sort-select").addEventListener("change", (e) => {
     state.sortBy = e.target.value;
-    renderAll();
+    invalidateTabs(["ranking", "matrix"]);
   });
 
   document.querySelectorAll('input[name="matrixMode"]').forEach(radio => {
     radio.addEventListener("change", (e) => {
       state.matrixMode = e.target.value;
-      renderAll();
+      invalidateTabs(["matrix"]);
     });
   });
 

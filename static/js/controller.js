@@ -32,25 +32,51 @@ let calcAbortCtrl = null;
 let franFetchSeq = 0;
 let franAbortCtrl = null;
 
-export function renderAll() {
-  renderGuideTab();
+// Tabs whose DOM is out of date: a view parameter changed while another tab was shown
+const staleTabs = new Set();
+
+function viewInputs() {
+  return {
+    plans: getEnrichedPlans(),
+    isKid: isChildYob(state.yob),
+    rebate: state.data.meta?.monthlyRebate ?? 4.75,
+    franchises: state.data.meta?.franchises || [300, 500, 1000, 1500, 2000, 2500]
+  };
+}
+
+const TAB_RENDERERS = {
+  ranking: ({ plans }) => renderRankingTable(plans),
+  curves: ({ plans, franchises, rebate, isKid }) => renderCurvesTab(plans, franchises, rebate, isKid),
+  matrix: ({ plans, franchises, rebate, isKid }) => renderMatrixTable(plans, franchises, rebate, isKid),
+  history: () => renderHistoryTable(state.data.insurerHistory || [], state.data.meta?.historyYears || [])
+};
+
+// New data or language: redraw every data view. The guide depends only on the language (applyLanguage renders it)
+function onDataChange() {
   updateMobileCollapseLabel();
   if (!state.data || !state.data.plans) return;
+  staleTabs.clear();
 
   document.getElementById("age-group-badge").textContent = getAgeTagText(state.yob);
 
-  const isKid = isChildYob(state.yob);
-  const rebate = state.data.meta?.monthlyRebate ?? 4.75;
-  const franchises = state.data.meta?.franchises || [300, 500, 1000, 1500, 2000, 2500];
-  const enrichedPlans = getEnrichedPlans();
-
+  const inputs = viewInputs();
   populateCurvePlanSelect();
   renderProfileChipsAndCards();
-  renderKpis(enrichedPlans, rebate);
-  renderRankingTable(enrichedPlans);
-  renderCurvesTab(enrichedPlans, franchises, rebate, isKid);
-  renderMatrixTable(enrichedPlans, franchises, rebate, isKid);
-  renderHistoryTable(state.data.insurerHistory || [], state.data.meta?.historyYears || []);
+  renderKpis(inputs.plans, inputs.rebate);
+  for (const render of Object.values(TAB_RENDERERS)) render(inputs);
+}
+
+// A view parameter (medical cost, filter, sort, matrix mode, curve plan) changed: redraw the shown tab if it is
+// one of `tabs`, leave the others stale until switchTab shows them
+export function invalidateTabs(tabs) {
+  for (const t of tabs) staleTabs.add(t);
+  renderIfStale(state.activeTab);
+}
+
+function renderIfStale(tabId) {
+  if (!staleTabs.has(tabId) || !state.data || !state.data.plans) return;
+  staleTabs.delete(tabId);
+  TAB_RENDERERS[tabId](viewInputs());
 }
 
 function indexNormalizedLocations() {
@@ -146,8 +172,7 @@ export async function fetchAndRenderCalculation() {
     }
 
     saveActiveStateToStorageAndUrl();
-    populateCurvePlanSelect();
-    renderAll();
+    onDataChange();
   } catch (e) {
     if (e.name === "AbortError") return;
     console.error("Calculation error:", e);
@@ -253,11 +278,12 @@ export function setMedicalCost(cost) {
   if (slider) slider.value = String(clamped);
   renderMedicalQuickSelect();
   saveActiveStateDebounced();
-  renderAll();
+  invalidateTabs(["ranking", "curves", "matrix"]);
 }
 
 export function switchTab(tabId) {
   state.activeTab = tabId;
+  renderIfStale(tabId);
   document.querySelectorAll(".nav-tabs li").forEach(li => {
     const btn = li.querySelector("button");
     const isMatch = btn.dataset.tab === tabId;
@@ -308,7 +334,7 @@ export function applyLanguage(lang) {
   renderGuideTab();
   saveActiveStateToStorageAndUrl();
   if (state.data) {
-    renderAll();
+    onDataChange();
   } else {
     renderProfileChipsAndCards();
     document.getElementById("age-group-badge").textContent = getAgeTagText(state.yob);
