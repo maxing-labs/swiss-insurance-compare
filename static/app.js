@@ -644,6 +644,7 @@ let calcAbortCtrl = null;
 let franFetchSeq = 0;
 let franAbortCtrl = null;
 let kbLocationIdx = -1;
+let saveStateTimer = null;
 
 function fmtChf(num, decimals = 2) {
   if (num === null || num === undefined || isNaN(num)) return "—";
@@ -763,6 +764,12 @@ function saveActiveStateToStorageAndUrl() {
   } catch (e) {
     // ignore history errors
   }
+}
+
+// Medical-cost controls fire per frame while dragging; Safari throttles replaceState (100 calls / 30 s)
+function saveActiveStateDebounced() {
+  clearTimeout(saveStateTimer);
+  saveStateTimer = setTimeout(saveActiveStateToStorageAndUrl, 500);
 }
 
 function loadSavedProfilesAndActiveState() {
@@ -1281,7 +1288,7 @@ function setMedicalCost(cost) {
   const slider = document.getElementById("medical-cost-slider");
   if (slider) slider.value = String(clamped);
   renderMedicalQuickSelect();
-  saveActiveStateToStorageAndUrl();
+  saveActiveStateDebounced();
   renderAll();
 }
 
