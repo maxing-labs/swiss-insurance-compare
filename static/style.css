@@ -1465,10 +1465,13 @@ input[type="range"] {
 }
 
 .about-dialog {
+  margin: auto;
   border: 2px solid var(--text-primary);
   border-radius: var(--radius-md);
   padding: 0;
   inline-size: min(580px, calc(100vw - 2rem));
+  max-block-size: calc(100dvh - 2rem);
+  overflow: auto;
   background: var(--bg-surface);
   color: var(--text-primary);
 }

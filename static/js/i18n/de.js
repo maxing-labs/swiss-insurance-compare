@@ -13,7 +13,7 @@ export default {
   mobileCollapseOpen: "Filter ▲",
   mobileCollapseClosed: "Filter ▼",
   lblLocation: "PLZ / Ort",
-  lblYob: "Jahrgang (1900–2027)",
+  lblYob: "Jahrgang",
   errInvalidYob: "Bitte gültigen Jahrgang zwischen 1900 und 2027 eingeben",
   lblFranchise: "Franchise",
   lblAccident: "Unfall",
