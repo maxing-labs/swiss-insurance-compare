@@ -660,6 +660,16 @@ function fmtSignedPct(val, decimals = 1) {
   return `${sign}${num.toFixed(decimals)}%`;
 }
 
+// Escape upstream strings before they are interpolated into innerHTML
+function esc(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function getPremiumYear() {
   return state.data?.meta?.premiumYear || 2027;
 }
@@ -975,7 +985,7 @@ function renderProfileChipsAndCards() {
     const priceTxt = p.summaryMinMonthly ? ` · CHF ${fmtChf(p.summaryMinMonthly, 0)}` : "";
     return `
       <div class="${activeCls}" data-pid="${p.id}">
-        <span>${lbl}${priceTxt}</span>
+        <span>${esc(lbl)}${priceTxt}</span>
         <button type="button" class="p-chip-del" data-del="${p.id}" title="${dict.delProfileTitle}">✕</button>
       </div>
     `;
@@ -995,12 +1005,12 @@ function renderProfileChipsAndCards() {
       ? `CHF ${fmtChf(p.summaryMinMonthly)} ${dict.perMonth}`
       : dict.clickToLoadPrice;
     const yearlyTxt = p.summaryMinMonthly
-      ? `${dict.netAnnualPrefix} ${fmtChf(p.summaryMinMonthly * 12, 0)} · ${p.summaryBestPlan || ""}`
+      ? `${dict.netAnnualPrefix} ${fmtChf(p.summaryMinMonthly * 12, 0)} · ${esc(p.summaryBestPlan || "")}`
       : dict.notCachedYet;
     return `
       <div class="${activeCls}" data-pid="${p.id}">
         <div class="saved-card-head">
-          <span>${lbl}</span>
+          <span>${esc(lbl)}</span>
           <span>${isActive ? dict.activeProfileBadge : dict.switchProfileBadge}</span>
         </div>
         <div class="saved-card-price">${minTxt}</div>
@@ -1038,7 +1048,7 @@ function renderProfileChipsAndCards() {
         <div class="family-bundle-chips">
           ${top5.map((item, idx) => `
             <span class="fb-pill ${idx === 0 ? "best" : ""}">
-              ${idx === 0 ? "★ " : `${idx + 1}. `}${item.insurer}: CHF ${fmtChf(item.totalMonthly)}${dict.perMonthShort} (CHF ${fmtChf(item.totalYearly, 0)}/yr)
+              ${idx === 0 ? "★ " : `${idx + 1}. `}${esc(item.insurer)}: CHF ${fmtChf(item.totalMonthly)}${dict.perMonthShort} (CHF ${fmtChf(item.totalYearly, 0)}/yr)
             </span>
           `).join("")}
         </div>
@@ -1428,16 +1438,17 @@ function renderRankingTable(plans) {
   const catLabels = dict.catLabels;
 
   tbody.innerHTML = visibleRows.map((p, idx) => {
-    const insLink = p.insurerUrl
-      ? `<a href="${p.insurerUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;">${p.insurer}</a>`
-      : p.insurer;
+    // Only http(s) links: esc() alone does not stop javascript: URLs
+    const insLink = /^https?:\/\//i.test(p.insurerUrl || "")
+      ? `<a href="${esc(p.insurerUrl)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;">${esc(p.insurer)}</a>`
+      : esc(p.insurer);
     const catTip = getCategoryTip(p.modelCategory);
 
     return `
       <tr>
         <td data-label="#">${idx + 1}</td>
         <th scope="row">${insLink}</th>
-        <td data-label="${dict.thModel}">${p.model}</td>
+        <td data-label="${dict.thModel}">${esc(p.model)}</td>
         <td data-label="${dict.thCategory}">
           <span class="cat-tag cat-${p.modelCategory}" data-goto-guide="1" title="${catTip}">
             ${catLabels[p.modelCategory] || p.modelCategory}
@@ -1461,7 +1472,7 @@ function populateCurvePlanSelect() {
   const sel = document.getElementById("curve-plan-select");
   if (!state.data?.plans || !sel) return;
   sel.innerHTML = state.data.plans.map((p, idx) =>
-    `<option value="${idx}">${dict.curveOptionLabel(p.insurer, p.model, p.monthlyNet)}</option>`
+    `<option value="${idx}">${dict.curveOptionLabel(esc(p.insurer), esc(p.model), p.monthlyNet)}</option>`
   ).join("");
   sel.value = String(state.selectedCurvePlanIdx);
 }
@@ -1663,8 +1674,8 @@ function renderMatrixTable(plans, franchises, rebate, isKid) {
 
     return `
       <tr class="matrix-row" data-plan-idx="${p.originalIdx}" style="cursor:pointer;" title="${dict.matrixRowTip}">
-        <th scope="row">${p.insurer}</th>
-        <td data-label="${dict.thModel}">${p.model}</td>
+        <th scope="row">${esc(p.insurer)}</th>
+        <td data-label="${dict.thModel}">${esc(p.model)}</td>
         ${cells}
       </tr>
     `;
@@ -1747,7 +1758,7 @@ function renderHistoryChart(rows, years) {
     return `
       <span class="legend-item">
         <span class="legend-dot" style="background:${color}"></span>
-        <span>${r.insurer} (${fmtSignedPct(r.avgIncreasePct)})</span>
+        <span>${esc(r.insurer)} (${fmtSignedPct(r.avgIncreasePct)})</span>
       </span>
     `;
   }).join("");
@@ -1787,7 +1798,7 @@ function renderHistoryTable(historyRows, years) {
 
     return `
       <tr>
-        <th scope="row">${r.insurer}</th>
+        <th scope="row">${esc(r.insurer)}</th>
         ${yearCells}
         <td class="num-col" data-label="${dict.th5YrAvg}">${getTrendBadgeHtml(r.avgIncreasePct)}</td>
       </tr>
@@ -2001,7 +2012,7 @@ function bindEvents() {
       return;
     }
     const itemsHtml = matches
-      .map((m, idx) => `<li role="option" data-idx="${idx}" data-id="${m.id}" data-name="${m.name}">${m.name}</li>`)
+      .map((m, idx) => `<li role="option" data-idx="${idx}" data-id="${esc(m.id)}" data-name="${esc(m.name)}">${esc(m.name)}</li>`)
       .join("");
     const metaHtml = totalCount > matches.length
       ? `<li class="match-meta">${dict.locationMoreHint(totalCount)}</li>`
