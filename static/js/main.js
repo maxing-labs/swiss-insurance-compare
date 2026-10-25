@@ -32,6 +32,15 @@ function bindEvents() {
 
   document.getElementById("btn-save-profile").addEventListener("click", saveCurrentAsProfile);
 
+  const aboutDialog = document.getElementById("about-dialog");
+  document.getElementById("btn-about").addEventListener("click", () => aboutDialog.showModal());
+  document.getElementById("btn-about-close").addEventListener("click", () => aboutDialog.close());
+  document.getElementById("btn-about-ok").addEventListener("click", () => aboutDialog.close());
+  // A click on the backdrop lands on the dialog element itself (its content is wrapped in .about-inner)
+  aboutDialog.addEventListener("click", (e) => {
+    if (e.target === aboutDialog) aboutDialog.close();
+  });
+
   const toggleFiltersBtn = document.getElementById("btn-toggle-filters");
   if (toggleFiltersBtn) {
     toggleFiltersBtn.addEventListener("click", () => {

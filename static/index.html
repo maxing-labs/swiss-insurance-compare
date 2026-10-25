@@ -22,7 +22,11 @@
       </div>
 
       <div class="header-actions">
-        <span class="status-pill" id="status-badge" data-i18n="statusReady">已同步</span>
+        <span class="status-pill" id="status-badge" data-i18n="statusReady">数据已加载</span>
+        <button type="button" class="btn-about" id="btn-about" aria-haspopup="dialog" aria-controls="about-dialog">
+          <span class="about-i" aria-hidden="true">i</span>
+          <span class="about-label" data-i18n="btnAbout">关于</span>
+        </button>
         <div class="lang-switch" role="group" aria-label="Language">
           <button type="button" class="lang-btn active" data-lang="zh">中</button>
           <button type="button" class="lang-btn" data-lang="en">EN</button>
@@ -346,6 +350,37 @@
       </div>
     </div>
   </footer>
+
+  <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-title">
+    <div class="about-inner">
+      <div class="about-head">
+        <h2 id="about-title" data-i18n="aboutTitle">关于 Priminfo Pro</h2>
+        <button type="button" class="about-close" id="btn-about-close" data-i18n-aria="aboutClose" aria-label="关闭">✕</button>
+      </div>
+      <div class="about-body">
+        <section>
+          <h3 data-i18n="aboutDataH">数据来源</h3>
+          <p data-i18n="aboutDataP">所有保费数据实时取自瑞士联邦公共卫生局 (BAG) 的官方保费查询网站 priminfo.admin.ch，不做任何加工；每年 9 月底官方公布下一年度保费后更新。</p>
+        </section>
+        <section>
+          <h3 data-i18n="aboutIndepH">独立 · 无广告</h3>
+          <p data-i18n="aboutIndepP">本站不投放广告、不收取任何保险公司的佣金、不使用跟踪统计。您保存的档案只存在自己的浏览器里，不会上传。</p>
+        </section>
+        <section>
+          <h3 data-i18n="aboutCalcH">怎么算的</h3>
+          <p data-i18n="aboutCalcP">「年实际总支出」= 12 × 净月保费 + 自付额以内的看病费用 + 超出自付额部分的 10%（成人每年最多 CHF 700，儿童最多 CHF 350）。净月保费已扣除每月返还的环境税补贴。</p>
+        </section>
+        <section>
+          <h3 data-i18n="aboutDisclaimerH">仅供参考</h3>
+          <p data-i18n="aboutDisclaimerP">计算结果仅供参考，不构成投保建议或要约；实际保费以保险公司和官方网站为准，换保前请在 priminfo.admin.ch 核对。基础医保 (KVG/LAMal) 的法定保障范围全国统一；换保截止日期通常为每年 11 月最后一个工作日。</p>
+        </section>
+      </div>
+      <div class="about-foot">
+        <a href="https://www.priminfo.admin.ch" target="_blank" rel="noopener">priminfo.admin.ch ↗</a>
+        <button type="button" class="btn-load-more" id="btn-about-ok" data-i18n="aboutClose">关闭</button>
+      </div>
+    </div>
+  </dialog>
 
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
