@@ -9,6 +9,7 @@ import {
   invalidateTabs,
   loadLocations,
   updateFranchisesForYob,
+  changeYob,
   fetchAndRenderCalculation,
   saveCurrentAsProfile,
   applyProfile,
@@ -180,10 +181,7 @@ function bindEvents() {
     }
     yobInput.classList.remove("is-invalid");
     yobError.classList.remove("visible");
-    const val = Number(yobInput.value);
-    state.yob = val;
-    await updateFranchisesForYob(val);
-    await fetchAndRenderCalculation();
+    await changeYob(Number(yobInput.value));
   });
 
   const franSelect = document.getElementById("franchise-select");

@@ -31,6 +31,8 @@ let calcFetchSeq = 0;
 let calcAbortCtrl = null;
 let franFetchSeq = 0;
 let franAbortCtrl = null;
+// Birth year the franchise <select> options were last loaded for (null until the first load succeeds)
+let franchisesYob = null;
 
 // Tabs whose DOM is out of date: a view parameter changed while another tab was shown
 const staleTabs = new Set();
@@ -100,7 +102,10 @@ export async function loadLocations() {
   }
 }
 
-export async function updateFranchisesForYob(yob) {
+// Sets state.franchise to `franchise` if `yob` offers it, else to the default for the age group.
+// Resolves true once the options for `yob` are in place, false if the request failed,
+// undefined if a newer call superseded this one
+export async function updateFranchisesForYob(yob, franchise = state.franchise) {
   const seq = ++franFetchSeq;
   if (franAbortCtrl) franAbortCtrl.abort();
   franAbortCtrl = new AbortController();
@@ -110,7 +115,7 @@ export async function updateFranchisesForYob(yob) {
     if (seq !== franFetchSeq) return;
 
     const sel = document.getElementById("franchise-select");
-    const prev = String(state.franchise);
+    const prev = String(franchise);
     sel.innerHTML = "";
     const list = data.franchises || [];
     for (const opt of list) {
@@ -121,17 +126,36 @@ export async function updateFranchisesForYob(yob) {
     }
     if (list.some(x => x.value === prev)) {
       sel.value = prev;
+      state.franchise = Number(prev);
     } else if (list.length > 0) {
       const defVal = isChildYob(yob) ? "0" : "2500";
       sel.value = list.some(x => x.value === defVal) ? defVal : list[0].value;
       state.franchise = Number(sel.value);
     }
+    franchisesYob = yob;
+    return true;
   } catch (e) {
-    if (e.name !== "AbortError") {
-      console.error("Failed to load franchises:", e);
-      showToast(I18N[state.lang].toastLoadFailed);
-    }
+    if (e.name === "AbortError" || seq !== franFetchSeq) return;
+    console.error("Failed to load franchises:", e);
+    showToast(I18N[state.lang].toastLoadFailed);
+    return false;
   }
+}
+
+// Without the options for the new birth year the selected franchise may not exist for it (a child has no
+// F2500), so a failed request restores the year the options belong to and skips the calculation
+export async function changeYob(yob) {
+  const prevYob = franchisesYob ?? state.yob;
+  state.yob = yob;
+  const ok = await updateFranchisesForYob(yob);
+  if (ok === undefined) return;
+  if (!ok) {
+    state.yob = prevYob;
+    syncFormControlsFromState();
+    document.getElementById("age-group-badge").textContent = getAgeTagText(state.yob);
+    return;
+  }
+  await fetchAndRenderCalculation();
 }
 
 export async function fetchAndRenderCalculation() {
@@ -240,15 +264,16 @@ export function saveCurrentAsProfile() {
 export async function applyProfile(profileId) {
   const p = state.savedProfiles.find(x => x.id === profileId);
   if (!p) return;
+  // Switch only once the profile's franchise options are in place (see changeYob); this also sets
+  // state.franchise, falling back to the default if the profile's birth year does not offer its franchise
+  if (!(await updateFranchisesForYob(Number(p.yob), Number(p.franchise)))) return;
   state.activeProfileId = p.id;
   state.locationId = p.locationId;
   state.locationName = p.locationName;
   state.yob = Number(p.yob);
-  state.franchise = Number(p.franchise);
   state.coverage = Number(p.coverage);
   state.models = p.models?.length ? [...p.models] : ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
 
-  await updateFranchisesForYob(state.yob);
   syncFormControlsFromState();
   saveActiveStateToStorageAndUrl();
   renderProfileChipsAndCards();
