@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Priminfo Pro — 瑞士联邦卫生局 (BAG) 2027 医保保费精算比价工具：支持多档自付额盈亏平衡曲线、多家庭成员档案对比、全档矩阵与5年历史涨幅分析。">
+  <title>Priminfo Pro — 瑞士医保比价 (2027)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23d90429'/%3E%3Cpath d='M13 6h6v7h7v6h-7v7h-6v-7H6v-6h7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="swiss-header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="swiss-cross" aria-hidden="true">✚</span>
+        <div class="brand-titles">
+          <h1 data-i18n="appTitle">PRIMINFO PRO</h1>
+          <span class="brand-meta" id="brand-subtitle" data-i18n="appSubtitle">BAG 2027 官方数据 · 更新于 2026-09</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span class="status-pill" id="status-badge" data-i18n="statusReady">已同步</span>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="zh">中</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="de">DE</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="profile-bar" aria-label="Saved Profiles">
+      <div class="profile-chips-row">
+        <span class="bar-label" data-i18n="lblProfiles">档案</span>
+        <div class="profile-chips" id="profile-chips"></div>
+        <button type="button" class="btn-chip-action" id="btn-save-profile" data-i18n="btnSaveProfile">+ 保存当前配置</button>
+        <button type="button" class="btn-mobile-collapse" id="btn-toggle-filters" aria-expanded="true">
+          <span id="mobile-filter-summary">收起筛选 ▲</span>
+        </button>
+      </div>
+
+      <form id="query-form" class="compact-profile-form" novalidate>
+        <div class="pf-field pf-loc">
+          <label for="location-search" data-i18n="lblLocation">邮编 / 城市</label>
+          <div class="autocomplete-wrap">
+            <input
+              type="text"
+              id="location-search"
+              placeholder="8001 Zürich, Genève, Bern..."
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-autocomplete="list"
+              aria-controls="location-dropdown"
+              required
+            >
+            <input type="hidden" id="location-id" value="80011450512497">
+            <ul id="location-dropdown" class="dropdown-list hidden" role="listbox"></ul>
+          </div>
+        </div>
+
+        <div class="pf-field pf-yob">
+          <label for="yob-input" data-i18n="lblYob">出生年 (1900–2027)</label>
+          <div class="input-inline">
+            <input
+              type="number"
+              id="yob-input"
+              min="1900"
+              max="2027"
+              step="1"
+              value="1990"
+              required
+              aria-describedby="yob-error"
+            >
+            <span class="age-tag" id="age-group-badge">37岁·成人</span>
+          </div>
+          <div id="yob-error" class="field-error-msg" role="alert" data-i18n="errInvalidYob">请输入 1900–2027 之间的有效年份</div>
+        </div>
+
+        <div class="pf-field pf-fran">
+          <label for="franchise-select" data-i18n="lblFranchise">自付额</label>
+          <select id="franchise-select">
+            <option value="300">CHF 300</option>
+            <option value="500">CHF 500</option>
+            <option value="1000">CHF 1'000</option>
+            <option value="1500">CHF 1'500</option>
+            <option value="2000">CHF 2'000</option>
+            <option value="2500" selected>CHF 2'500</option>
+          </select>
+        </div>
+
+        <div class="pf-field pf-acc">
+          <label data-i18n="lblAccident">意外险</label>
+          <div class="seg-mini">
+            <label>
+              <input type="radio" name="coverage" value="0" checked>
+              <span data-i18n="optNoAcc">不含</span>
+            </label>
+            <label>
+              <input type="radio" name="coverage" value="1">
+              <span data-i18n="optYesAcc">含</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="pf-field pf-models">
+          <label data-i18n="lblModels">模型筛选</label>
+          <div class="model-toggles" id="model-pills">
+            <label class="m-chip active" data-model-tip="tipBase"><input type="checkbox" value="BASE" checked><span>Standard</span></label>
+            <label class="m-chip active" data-model-tip="tipFlex"><input type="checkbox" value="FLEX" checked><span>FLEX</span></label>
+            <label class="m-chip active" data-model-tip="tipPraxis"><input type="checkbox" value="PRAXIS" checked><span>PRAXIS</span></label>
+            <label class="m-chip active" data-model-tip="tipTel"><input type="checkbox" value="TEL_DIG" checked><span>TEL-DIG</span></label>
+            <label class="m-chip active" data-model-tip="tipPharm"><input type="checkbox" value="PHARM" checked><span>PHARM</span></label>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <nav class="primary-nav" aria-label="Primary Views">
+      <ul class="nav-tabs" role="tablist">
+        <li class="active" role="presentation">
+          <button type="button" role="tab" aria-selected="true" data-tab="ranking">
+            <span class="tab-num">01</span>
+            <span data-i18n="tabRanking">保费排行</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button type="button" role="tab" aria-selected="false" data-tab="curves">
+            <span class="tab-num">02</span>
+            <span data-i18n="tabCurves">盈亏曲线</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button type="button" role="tab" aria-selected="false" data-tab="matrix">
+            <span class="tab-num">03</span>
+            <span data-i18n="tabMatrix">全档矩阵</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button type="button" role="tab" aria-selected="false" data-tab="history">
+            <span class="tab-num">04</span>
+            <span data-i18n="tabHistory">5年涨幅</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button type="button" role="tab" aria-selected="false" data-tab="guide">
+            <span class="tab-num">05</span>
+            <span data-i18n="tabGuide">模型指南</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="swiss-main">
+    <section class="view-section active" id="view-ranking" role="tabpanel">
+      <div class="saved-comparison-box" id="saved-comparison-box">
+        <div class="section-head">
+          <h2 data-i18n="secSavedCompare">已存档案快速对比</h2>
+          <span class="section-note" data-i18n="noteSavedCompare">点击顶部「+ 保存当前配置」可将不同家庭成员、不同城市或不同自付额加入横向对比</span>
+        </div>
+        <div class="saved-cards-grid" id="saved-cards-grid"></div>
+        <div class="family-bundle-box hidden" id="family-bundle-box"></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-cell">
+          <span class="kpi-label" data-i18n="kpiCheapest">最低净月保费</span>
+          <strong class="kpi-num" id="kpi-min-monthly">—</strong>
+          <span class="kpi-meta" id="kpi-min-plan">—</span>
+        </div>
+        <div class="kpi-cell">
+          <span class="kpi-label" data-i18n="kpiSavings">年省空间 (对比最贵)</span>
+          <strong class="kpi-num text-green" id="kpi-max-savings">—</strong>
+          <span class="kpi-meta" id="kpi-savings-sub">—</span>
+        </div>
+        <div class="kpi-cell">
+          <span class="kpi-label" data-i18n="kpiStable">5年均涨最低 (公司基准)</span>
+          <strong class="kpi-num" id="kpi-most-stable">—</strong>
+          <span class="kpi-meta" id="kpi-stable-sub">—</span>
+        </div>
+        <div class="kpi-cell">
+          <span class="kpi-label" data-i18n="kpiCount">可选方案总数</span>
+          <strong class="kpi-num" id="kpi-plan-count">—</strong>
+          <span class="kpi-meta" id="kpi-rebate-info">—</span>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="search-wrap">
+          <input type="search" id="search-filter" data-i18n-placeholder="searchPlaceholder" placeholder="过滤保险公司或模型 (如 Sanitas, Assura, HMO)..." aria-label="Filter insurer or model">
+        </div>
+        <div class="toolbar-right">
+          <label for="medical-quick-select" class="inline-cost-lbl" data-i18n="lblQuickMed">预估年医疗费:</label>
+          <select id="medical-quick-select" aria-label="Estimated annual medical bills"></select>
+          <select id="sort-select" aria-label="Sort order">
+            <option value="monthlyNet" data-i18n="sortMonthly">按净月保费 ↑</option>
+            <option value="totalYearCost" data-i18n="sortTotal">按全年总成本 ↑</option>
+            <option value="avgIncreasePct" data-i18n="sortHistory">按5年涨幅 ↑</option>
+          </select>
+          <button type="button" class="btn-export-csv" id="btn-export-csv" data-i18n="btnExportCsv">⬇ CSV</button>
+        </div>
+      </div>
+
+      <div tabindex="0" role="region" aria-labelledby="ranking-caption" class="table-wrapper">
+        <table id="ranking-table">
+          <caption id="ranking-caption" class="sr-only">2027 瑞士医保保费排行榜</caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col" data-i18n="thInsurer">保险公司</th>
+              <th scope="col" data-i18n="thModel">方案名称</th>
+              <th scope="col" data-i18n="thCategory">类型</th>
+              <th scope="col" class="num-col" data-i18n="thMonthlyNet">净月保费</th>
+              <th scope="col" class="num-col" data-i18n="thYearlyNet">年净保费</th>
+              <th scope="col" class="num-col" data-i18n="thOutOfPocket">看病自付</th>
+              <th scope="col" class="num-col highlight-col" data-i18n="thTotalRealCost">年实际总支出</th>
+              <th scope="col" class="num-col">
+                <span data-i18n="th5YrAvg">5年均涨</span>
+                <span class="th-info-tip" id="th-5yr-tip" title="基于该保险公司在当前地区标准模型 (Standard) 过去5年的平均保费涨幅">ⓘ</span>
+              </th>
+              <th scope="col" class="num-col" data-i18n="thCurveAction">精算曲线</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-tbody"></tbody>
+        </table>
+      </div>
+      <div class="load-more-bar hidden" id="ranking-load-more-wrap">
+        <button type="button" class="btn-load-more" id="btn-load-more"></button>
+      </div>
+    </section>
+
+    <section class="view-section hidden" id="view-curves" role="tabpanel">
+      <div class="curves-layout">
+        <div class="curves-controls">
+          <div class="field-box">
+            <label for="curve-plan-select" data-i18n="lblSelectPlanForCurve">选择保险方案绘制全档位曲线</label>
+            <select id="curve-plan-select"></select>
+          </div>
+
+          <div class="field-box">
+            <label for="medical-cost-slider">
+              <span data-i18n="lblHoverMedical">预估 2027 医疗账单 (X轴游标)</span>:
+              <strong id="curve-cost-readout" class="text-accent">CHF 500</strong>
+            </label>
+            <input type="range" id="medical-cost-slider" min="0" max="6000" step="50" value="500">
+            <div class="preset-pills" id="preset-pills-wrap">
+              <button type="button" class="preset-btn" data-cost="0">CHF 0</button>
+              <button type="button" class="preset-btn" data-cost="500">CHF 500</button>
+              <button type="button" class="preset-btn" data-cost="1800" data-i18n="preset1800">CHF 1'800 临界</button>
+              <button type="button" class="preset-btn" data-cost="3500">CHF 3'500</button>
+              <button type="button" class="preset-btn" data-cost="6000">CHF 6'000</button>
+            </div>
+          </div>
+
+          <div class="verdict-box" id="curve-verdict-box">
+            <div class="verdict-label" data-i18n="lblVerdict">精算结论</div>
+            <h3 id="verdict-title">—</h3>
+            <p id="verdict-desc">—</p>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 id="chart-plan-title" data-i18n="chartTitle">各 Franchise 档位全年总支出曲线</h2>
+              <p class="chart-sub" data-i18n="chartSub">横轴 (X): 预估全年医疗总账单 (CHF 0 ~ 6'000) · 纵轴 (Y): 全年实际掏钱总额 (12×净月保费 + Franchise内自付 + 10%超额自付)</p>
+            </div>
+            <div class="chart-legend" id="chart-legend"></div>
+          </div>
+
+          <div class="svg-chart-wrap" id="svg-chart-wrap">
+            <svg id="breakeven-svg" viewBox="0 0 820 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Franchise break-even cost curves"></svg>
+          </div>
+
+          <div class="cursor-breakdown" id="cursor-breakdown"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view-section hidden" id="view-matrix" role="tabpanel">
+      <div class="toolbar-row">
+        <p class="section-note" data-i18n="matrixHint">
+          绿色标记 (★) 为当前预估医疗支出下该方案最省钱的 Franchise 档位；「—」表示该保险方案不提供对应 Franchise 档位。点击任意行可查看盈亏曲线。
+        </p>
+        <div class="seg-mini">
+          <label>
+            <input type="radio" name="matrixMode" value="monthly" checked>
+            <span data-i18n="matrixModeMonthly">月净保费 (CHF/月)</span>
+          </label>
+          <label>
+            <input type="radio" name="matrixMode" value="totalCost">
+            <span data-i18n="matrixModeTotal">含看病全年总支出 (CHF/年)</span>
+          </label>
+        </div>
+      </div>
+
+      <div tabindex="0" role="region" aria-labelledby="matrix-caption" class="table-wrapper">
+        <table id="matrix-table">
+          <caption id="matrix-caption" class="sr-only">全自付额矩阵对比表</caption>
+          <thead id="matrix-thead"></thead>
+          <tbody id="matrix-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="view-section hidden" id="view-history" role="tabpanel">
+      <div class="toolbar-row">
+        <p class="section-note" data-i18n="historyHint">
+          展示当前地区各保险公司 2022–2027 历年标准模型 (Standard) 月保费（CHF）及同比变化，识别价格波动与长期趋势。
+        </p>
+      </div>
+      <div class="chart-card history-chart-card" id="history-chart-card">
+        <div class="chart-header">
+          <h2 data-i18n="historyChartTitle">主要保险公司 2022–2027 标准月保费走势对比 (Top 8)</h2>
+          <div class="chart-legend" id="history-chart-legend"></div>
+        </div>
+        <div class="svg-chart-wrap">
+          <svg id="history-svg" viewBox="0 0 820 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="5-year historical premium trend chart"></svg>
+        </div>
+      </div>
+      <div tabindex="0" role="region" aria-labelledby="history-caption" class="table-wrapper">
+        <table id="history-table">
+          <caption id="history-caption" class="sr-only">5年历史保费涨幅表</caption>
+          <thead id="history-thead"></thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="view-section hidden" id="view-guide" role="tabpanel">
+      <div id="guide-dynamic-container"></div>
+    </section>
+  </main>
+
+  <footer class="swiss-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <strong>PRIMINFO PRO</strong> · <span data-i18n="footerDataSource">数据直连瑞士联邦公共卫生局 (BAG / OFSP / UFSP)</span>
+        <a href="https://www.priminfo.admin.ch" target="_blank" rel="noopener">priminfo.admin.ch ↗</a>
+      </div>
+      <div class="footer-col footer-muted" data-i18n="footerDisclaimer">
+        2027 年度官方核准保费数据（发布于 2026-09）。基础医保 (KVG/LAMal) 法定保障范围全国统一，换保截止日期通常为每年 11 月最后一个工作日。结果仅供参考，不构成投保要约。
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
