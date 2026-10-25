@@ -4,7 +4,9 @@ Priminfo Pro - Local Dev Server & Vercel-Compatible Backend
 """
 
 import json
+import logging
 import urllib.parse
+from http import HTTPStatus
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from api.index import EmptyResultError, NotFoundError, handle_api_request
@@ -32,7 +34,9 @@ class PriminfoHandler(SimpleHTTPRequestHandler):
                 return self.send_json(data)
             except Exception as e:
                 status = 404 if isinstance(e, NotFoundError) else 502 if isinstance(e, EmptyResultError) else 500
-                return self.send_json({"error": str(e)}, status=status)
+                log = logging.exception if status == 500 else logging.warning
+                log("GET %s -> %d: %s", self.path, status, e)
+                return self.send_json({"error": HTTPStatus(status).phrase}, status=status)
         return super().do_GET()
 
 

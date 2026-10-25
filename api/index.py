@@ -1,5 +1,7 @@
+from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import json
+import logging
 import re
 import time
 import urllib.parse
@@ -391,7 +393,9 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
         except Exception as e:
             status = 404 if isinstance(e, NotFoundError) else 502 if isinstance(e, EmptyResultError) else 500
-            body = json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8")
+            log = logging.exception if status == 500 else logging.warning
+            log("GET %s -> %d: %s", self.path, status, e)
+            body = json.dumps({"error": HTTPStatus(status).phrase}, ensure_ascii=False).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()

@@ -7,6 +7,7 @@ import http.client
 import json
 import threading
 import unittest
+import urllib.error
 import urllib.parse
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -114,8 +115,8 @@ class VercelHandlerTest(unittest.TestCase):
         cls.addClassCleanup(cls.httpd.server_close)
         cls.addClassCleanup(cls.httpd.shutdown)
 
-    def get(self, path, broken=None):
-        with mock.patch.object(api, "fetch_upstream", fake_upstream(broken)):
+    def get(self, path, broken=None, fetch=None):
+        with mock.patch.object(api, "fetch_upstream", fetch or fake_upstream(broken)):
             conn = http.client.HTTPConnection("127.0.0.1", self.httpd.server_port, timeout=10)
             try:
                 conn.request("GET", path)
@@ -164,15 +165,33 @@ class VercelHandlerTest(unittest.TestCase):
             ("/api/locations", "/de/praemien/locations"),
         ]
         for path, broken in cases:
-            with self.subTest(path=path, broken=broken):
+            with self.subTest(path=path, broken=broken), self.assertLogs(level="WARNING"):
                 status, cache_control, _ = self.get(path, broken)
                 self.assertEqual(status, 502)
                 self.assertIsNone(cache_control)
 
     def test_unknown_endpoint_is_404_without_cache(self):
-        status, cache_control, _ = self.get("/api/nope")
+        with self.assertLogs(level="WARNING"):
+            status, cache_control, _ = self.get("/api/nope")
         self.assertEqual(status, 404)
         self.assertIsNone(cache_control)
+
+    def test_error_details_are_logged_not_returned(self):
+        def unreachable(path):
+            raise urllib.error.URLError("connection refused by www.priminfo.admin.ch")
+
+        cases = [
+            ("/api/nope", None, 404, "Not Found", "Unknown API endpoint"),
+            ("/api/calculate", fake_upstream("display=change"), 502, "Bad Gateway", "Empty upstream result"),
+            ("/api/locations", unreachable, 500, "Internal Server Error", "connection refused"),
+        ]
+        for path, fetch, status, message, detail in cases:
+            with self.subTest(path=path):
+                with self.assertLogs(level="WARNING") as logs:
+                    got_status, _, body = self.get(path, fetch=fetch)
+                self.assertEqual(got_status, status)
+                self.assertEqual(body, {"error": message})
+                self.assertIn(detail, "\n".join(logs.output))
 
 
 class LocalServerTest(VercelHandlerTest):
