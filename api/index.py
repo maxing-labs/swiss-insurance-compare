@@ -44,7 +44,10 @@ def get_locations_json() -> dict:
     idx = raw.find("{")
     r_idx = raw.rfind("}")
     if idx != -1 and r_idx != -1:
-        return json.loads(raw[idx : r_idx + 1])
+        try:
+            return json.loads(raw[idx : r_idx + 1])
+        except ValueError:  # e.g. CSS braces in an HTML error page
+            pass
     return {"index": {}, "names": {}}
 
 

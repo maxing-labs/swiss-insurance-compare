@@ -18,7 +18,11 @@ import server
 FIXTURES = Path(__file__).parent / "fixtures"
 INSURERS = {"KPT", "ÖKK", "Einsiedeln"}  # rows kept by tests/make_fixtures.py
 PLAN_COUNT = 12
-MAINTENANCE = "<html><body><h1>Wartungsarbeiten</h1><p>Bitte versuchen Sie es später.</p></body></html>"
+# the inline CSS braces once made /api/locations parse the page as JSON and return 500
+MAINTENANCE = (
+    "<html><head><style>body{font-family:sans-serif}</style></head>"
+    "<body><h1>Wartungsarbeiten</h1><p>Bitte versuchen Sie es später.</p></body></html>"
+)
 
 
 def fixture(name: str) -> str:
