@@ -115,8 +115,8 @@ static/js/
 ### 其他
 
 - **已部署到生产**（均经用户同意）
-  - preview：HEAD `7d2f2e4`，`vercel deploy`，地址 `swiss-insurance-compare-refjhemyq-jddymx-8366s-projects.vercel.app`，没有开启访问保护
-  - 生产：HEAD `db2b94e`，`vercel deploy --prod`，部署地址 `swiss-insurance-compare-4w5r5rb0l-jddymx-8366s-projects.vercel.app`，别名为 `swiss-insurance-compare.vercel.app`。和 preview 相比只多了文档提交，没有代码改动
+  - preview：HEAD `7d2f2e4`，`vercel deploy`，preview 地址已略去，没有开启访问保护
+  - 生产：HEAD `db2b94e`，`vercel deploy --prod`，别名为 `swiss-insurance-compare.vercel.app`。和 preview 相比只多了文档提交，没有代码改动
   - 两个环境的验证结果相同
     - `/js/main.js`、`/js/views/*.js`、`/js/i18n/*.js` 均为 200，Content-Type 为 `application/javascript`，缓存头为 `max-age=0, must-revalidate`
     - `VISIBLE=1` 快照 63/63 与 `cf734e7` 一致；错误路径 9/9 一致；控制台无报错

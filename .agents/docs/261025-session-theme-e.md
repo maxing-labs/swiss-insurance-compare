@@ -74,8 +74,8 @@
 ### 部署（用户要求：提交后发布到生产）
 
 - 直接 `vercel deploy --prod --yes`，HEAD `5c1a832`
-- 部署 `swiss-insurance-compare-bydpfs693-jddymx-8366s-projects.vercel.app`，别名 `swiss-insurance-compare.vercel.app`，`dpl_73mKqnAszfzNEbvN5GCiRLyvSUad`
-- 第二次：HEAD `634f095`，部署 `swiss-insurance-compare-89gj014d0-jddymx-8366s-projects.vercel.app`，别名同上；验证首页含新标签、`style.css` 含居中规则、生产上弹窗在 1280×900 / 1465×575 / 390×844 居中
+- 别名 `swiss-insurance-compare.vercel.app`，`dpl_73mKqnAszfzNEbvN5GCiRLyvSUad`
+- 第二次：HEAD `634f095`，别名同上；验证首页含新标签、`style.css` 含居中规则、生产上弹窗在 1280×900 / 1465×575 / 390×844 居中
 - 验证：首页 / `style.css` / 两个字体（`font/woff2`，与本地字节一致）/ `chart-theme.js` / API 均 200；页面含 `btn-about` 与 `presetBreakEven`；`quick.mjs` 对生产的读数与本地一致；e2e 18/18（`BASE=` 指向生产）；控制台无报错
 - 回滚：Vercel 控制台 promote 上一个生产部署（`62ccfd0`，`swiss-insurance-compare-a7hftjm1j-…`），或 `vercel rollback`
 

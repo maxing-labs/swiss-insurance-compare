@@ -138,10 +138,10 @@
 
 - **preview**
   - HEAD `2347de2`，执行 `vercel deploy`
-  - 地址 `swiss-insurance-compare-mmpmmb8rc-jddymx-8366s-projects.vercel.app`，没有开启访问保护
+  - preview 地址已略去，没有开启访问保护
 - **生产**
   - preview 验证通过后，在同一个 HEAD 上执行 `vercel deploy --prod`
-  - 部署地址 `swiss-insurance-compare-a7hftjm1j-jddymx-8366s-projects.vercel.app`，别名 `swiss-insurance-compare.vercel.app`
+  - 别名 `swiss-insurance-compare.vercel.app`
 - **两个环境的验证结果相同**
   - 页面和 `/js/*.js` 均为 200，JS 的 Content-Type 为 `application/javascript`；线上已是新代码（`calc.js` 含 `netYearlyAt`）
   - `VISIBLE=1` 快照 63/63 与本地 `item7` 一致
