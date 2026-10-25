@@ -104,6 +104,34 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(api.parse_savings_html(fixture("no_premiums.html")), [])
 
 
+class MergeTest(unittest.TestCase):
+    """/api/calculate joins the three pages by insurer (and model) name."""
+
+    def test_matching_names_log_nothing(self):
+        with mock.patch.object(api, "fetch_upstream", fake_upstream()), self.assertNoLogs(level="WARNING"):
+            api.handle_api_request("/api/calculate", {})
+
+    def test_unmatched_names_are_logged(self):
+        fixtures = fake_upstream()
+
+        def renamed(path):
+            page = fixtures(path)
+            if "display=comparison" in path:
+                return page.replace("Einsiedeln", "Einsiedeln AG")
+            if "display=change" in path:
+                return page.replace("ÖKK", "OEKK")
+            return page
+
+        with mock.patch.object(api, "fetch_upstream", renamed), self.assertLogs(level="WARNING") as logs:
+            data = api.handle_api_request("/api/calculate", {})
+        output = "\n".join(logs.output)
+        self.assertIn("comparison", output)
+        self.assertIn("Einsiedeln", output)
+        self.assertIn("change", output)
+        self.assertIn("ÖKK", output)
+        self.assertEqual(len(data["plans"]), PLAN_COUNT)
+
+
 class FetchUpstreamTest(unittest.TestCase):
     def test_recovers_once_upstream_is_back(self):
         """A maintenance page must not be kept in memory and keep the 502 going."""

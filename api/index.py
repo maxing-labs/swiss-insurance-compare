@@ -336,6 +336,12 @@ def handle_api_request(path: str, qs: dict) -> dict:
             r["insurer"]: {"history": r["history"], "avgIncreasePct": r["avgIncreasePct"]}
             for r in change_data["rows"]
         }
+        no_matrix = sorted({(p["insurer"], p["model"]) for p in savings_list} - matrix_map.keys())
+        if no_matrix:
+            logging.warning("savings rows not found on the comparison page: %s", no_matrix)
+        no_change = sorted({p["insurer"] for p in savings_list} - change_map.keys())
+        if no_change:
+            logging.warning("insurers not found on the change page: %s", no_change)
 
         monthly_rebate = savings_list[0]["monthlyRebate"] if savings_list else 4.75
 
