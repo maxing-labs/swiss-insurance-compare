@@ -19,6 +19,8 @@
 | 2 | `38ae44f` | `i18n/{zh,en,de}.js`、`index.html` 文案；`curves.js` 的卡片标题改用新 key `franchiseTag`；3 个 e2e 的期望字符串 |
 | 3 | `8eb7901` | 头部「关于」按钮 + 原生 `<dialog>`（`index.html`、`main.js`）；`applyLanguage` 新增 `data-i18n-aria`；About 文案 zh/en/de |
 | 文档 | 本次 | 本文件；AGENTS.md 补一行字体 / 色板位置 |
+| 色板 | `047ed97` | `FRANCHISE_COLORS` 的 F400 / F1000 和 `HISTORY_LINE_COLORS` 第 4 色 `#d97706` → `#b45309`（暖白底上 3.0:1 → 4.6:1） |
+| 临界点 | `5c1a832` | 指南卡片改为「低于约 CHF 1'800–2'000 选 2500，高于选 300，准确值看曲线页」；快捷选项和预设按钮从 1'800 改为 1'900（key 改名 `medOptBreakEven` / `presetBreakEven`） |
 
 任务书写的是 `static/app.js`，但仓库早已拆成 `static/js/`，所以颜色常量改在 `views/curves.js`、`views/history.js`、`views/guide.js`。
 
@@ -68,10 +70,17 @@
 - **About 用 `<dialog>` 弹窗而不是 Tab**：不占 Tab 位，Esc / 背景点击 / 两个关闭按钮都能关；正文是纯文本，走现有 `data-i18n`，只给 ✕ 按钮加了 `data-i18n-aria`
 - **拆成三次提交**：任务书要求主题一次提交，另外两项是独立需求，用 `git apply --cached --unidiff-zero` 按 hunk 分拣。三处不纯：About 的 CSS 随主题提交；`index.html` 里 KPI「年省空间」的新文案和 `text-accent` 在同一个 hunk，落在主题提交；状态胶囊的文案和「关于」按钮在同一个 hunk，落在第三次提交
 
+### 部署（用户要求：提交后发布到生产）
+
+- 直接 `vercel deploy --prod --yes`，HEAD `5c1a832`
+- 部署 `swiss-insurance-compare-bydpfs693-jddymx-8366s-projects.vercel.app`，别名 `swiss-insurance-compare.vercel.app`，`dpl_73mKqnAszfzNEbvN5GCiRLyvSUad`
+- 验证：首页 / `style.css` / 两个字体（`font/woff2`，与本地字节一致）/ `chart-theme.js` / API 均 200；页面含 `btn-about` 与 `presetBreakEven`；`quick.mjs` 对生产的读数与本地一致；e2e 18/18（`BASE=` 指向生产）；控制台无报错
+- 回滚：Vercel 控制台 promote 上一个生产部署（`62ccfd0`，`swiss-insurance-compare-a7hftjm1j-…`），或 `vercel rollback`
+
 ## 遗留问题与下一步
 
-1. **指南卡片和预设按钮的「1'800」是经验值**：实际临界点随方案在 1'810–2'020 之间（中位 1'900），指南说「< 1'800 选 2500 永远最省 / > 1'800 选 300 永远最省」在 1'800–2'000 这段并不总成立。建议把文案改成「约 1'800–2'000，以曲线页为准」或把预设改成 1'900；未改，等用户决定
-2. **`FRANCHISE_COLORS` 的 `#d97706`（F400 / F1000）在暖白底上对比度约 3.0:1**，刚够图形元素的 AA 下限；临界点虚线也是琥珀色，和 F1000 线颜色接近。按任务书保留色板，可考虑把 F1000 换成更深的 `#b45309`
+1. ~~指南卡片和预设按钮的「1'800」~~ 已按用户决定改为区间 + 1'900 预设（`5c1a832`）。原记录：**「1'800」是经验值**：实际临界点随方案在 1'810–2'020 之间（中位 1'900），指南说「< 1'800 选 2500 永远最省 / > 1'800 选 300 永远最省」在 1'800–2'000 这段并不总成立。建议把文案改成「约 1'800–2'000，以曲线页为准」或把预设改成 1'900；未改，等用户决定
+2. ~~`FRANCHISE_COLORS` 的 `#d97706`~~ 已按用户决定换成 `#b45309`（`047ed97`，历史图第 4 色一并换）
 3. **手机端 Tab 栏仍需横向滑动**（见上）；若要完全放下，需要把 Tab 名缩到 4 个字并去掉编号
 4. **自托管字体只有 latin 子集**：中文走系统 `Songti SC` / `PingFang SC`，没有 Noto 的设备会回落到默认衬线 / 无衬线
 5. 上次遗留的 1–8 条与评审 #8、#14、#16、#17 未动
