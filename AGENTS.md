@@ -9,7 +9,7 @@
 - 前端测试：`node --test 'tests/js/*.test.mjs'`（Node ≥ 22，只用内置的 `node:test`），覆盖 `static/js/calc.js`、`location-search.js` 的纯函数和 `state.js` 的派生数据。不要为此加 `package.json`，以免 Vercel 把项目识别成 Node 项目
 - 浏览器测试：`tests/e2e/`，覆盖涉及 DOM 和请求的行为（用 `page.route` 模拟接口失败、延迟或改写响应）
   - 先运行 `python3 server.py`。其余请求会经本地服务访问真实上游，需要联网
-  - 运行：`PLAYWRIGHT_CORE=<playwright-core 目录> CHROMIUM=<浏览器可执行文件> node --test 'tests/e2e/*.test.mjs'`
+  - 运行：`PLAYWRIGHT_CORE=<playwright-core 目录> CHROMIUM=<浏览器可执行文件> node --test --test-concurrency=1 'tests/e2e/*.test.mjs'`。`server.py` 一次只处理一个请求，多个测试文件并行时页面会加载超时
   - playwright-core 不是项目依赖，不要加 `package.json`。找不到 playwright-core 时测试自动跳过；它自带的浏览器版本已安装时可以不设 `CHROMIUM`
   - 服务不在 8765 端口时，用 `BASE=http://...` 指定
 - 线上：Vercel，路由见 `vercel.json`
