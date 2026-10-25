@@ -42,7 +42,7 @@ export default {
   medOpt0: "CHF 0 / J. (Gesund)",
   medOpt500: "CHF 500 / J. (Wenig)",
   medOpt1500: "CHF 1'500 / J.",
-  medOpt1800: "CHF 1'800 / J. (Schwelle)",
+  medOptBreakEven: "CHF 1'900 / J. (Typische Schwelle)",
   medOpt3000: "CHF 3'000 / J.",
   medOpt5000: "CHF 5'000 / J. (Hoch)",
   medOptCustom: (v) => `CHF ${fmtChf(v, 0)} / J. (Eigene)`,
@@ -68,7 +68,7 @@ export default {
   locationMoreHint: (total) => `${total} Treffer — bitte genauer eingeben`,
   lblSelectPlanForCurve: "Angebot wählen, um seine Franchisen zu vergleichen",
   lblHoverMedical: "Geschätzte Arztkosten 2027 (senkrechte Linie)",
-  preset1800: "CHF 1'800 Schwelle",
+  presetBreakEven: "CHF 1'900 typische Schwelle",
   lblVerdict: "Empfehlung",
   chartTitle: "Jährliche Gesamtkosten nach Franchise",
   chartSub: "X-Achse: Geschätzte Gesundheitskosten (CHF 0 ~ 6'000) · Y-Achse: Effektive Gesamtkosten pro Jahr (Prämie + Franchise + 10% Selbstbehalt)",
@@ -201,8 +201,8 @@ export default {
         title: "Warum Erwachsene nur CHF 300 oder CHF 2'500 wählen sollten",
         desc: "Der maximale Prämienrabatt beträgt gesetzlich 70 % des zusätzlichen Franchise-Risikos. Von 300 auf 2'500 (+2'200 Risiko) spart maximal ca. CHF 1'540 Prämie pro Jahr:",
         bullets: [
-          "<strong>Arztkosten &lt; CHF 1'800:</strong> <strong>CHF 2'500</strong> ist rechnerisch immer am günstigsten",
-          "<strong>Arztkosten &gt; CHF 1'800:</strong> <strong>CHF 300</strong> ist rechnerisch immer am günstigsten",
+          "<strong>Arztkosten unter rund CHF 1'800–2'000:</strong> <strong>CHF 2'500</strong> ist am günstigsten",
+          "<strong>Darüber:</strong> <strong>CHF 300</strong> ist am günstigsten. Die genaue Schwelle hängt vom Angebot ab und steht im Tab 02 «Welche Franchise?»",
           "<strong>Zwischenstufen (500–2000):</strong> Im Tab 02 «Welche Franchise?» liegen mittlere Franchisen überall über dem Schnittpunkt von 300 und 2'500."
         ]
       }

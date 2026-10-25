@@ -42,7 +42,7 @@ export default {
   medOpt0: "CHF 0 / 年 (不看病)",
   medOpt500: "CHF 500 / 年 (小病)",
   medOpt1500: "CHF 1'500 / 年",
-  medOpt1800: "CHF 1'800 / 年 (临界点)",
+  medOptBreakEven: "CHF 1'900 / 年 (常见临界点)",
   medOpt3000: "CHF 3'000 / 年",
   medOpt5000: "CHF 5'000 / 年 (慢病/手术)",
   medOptCustom: (v) => `CHF ${fmtChf(v, 0)} / 年 (自定义)`,
@@ -68,7 +68,7 @@ export default {
   locationMoreHint: (total) => `共找到 ${total} 个匹配项，请输入更精确的邮编或城市名`,
   lblSelectPlanForCurve: "选择一个方案，比较它的各个自付额档位",
   lblHoverMedical: "预估 2027 年看病花费 (图中竖线)",
-  preset1800: "CHF 1'800 临界点",
+  presetBreakEven: "CHF 1'900 常见临界点",
   lblVerdict: "建议",
   chartTitle: "各自付额档位的全年总花费",
   chartSub: "横轴: 预估全年看病总花费 (CHF 0 ~ 6'000) · 纵轴: 全年实际掏钱总额 (12×净月保费 + 自付额内自付 + 10% 超额自付)",
@@ -201,8 +201,8 @@ export default {
         title: "为什么成人自付额只该选 300 或 2500？",
         desc: "瑞士法律规定每提高 1 瑞郎自付额，全年保费最高只能优惠 0.70 瑞郎。从 300 提到 2500（多担 2200 风险），全年保费最多省约 CHF 1'540：",
         bullets: [
-          "<strong>年医疗账单 &lt; CHF 1'800：</strong>选 <strong>CHF 2'500</strong> 永远最省钱",
-          "<strong>年医疗账单 &gt; CHF 1'800：</strong>选 <strong>CHF 300</strong> 永远最省钱",
+          "<strong>年看病花费低于约 CHF 1'800–2'000：</strong>选 <strong>CHF 2'500</strong> 最省钱",
+          "<strong>高于这个区间：</strong>选 <strong>CHF 300</strong> 最省钱。准确的临界点因方案而异，以「02 自付额怎么选」中显示的为准",
           "<strong>中间档 (500~2000)：</strong>在「02 自付额怎么选」中可见，中间档曲线全程位于 300 与 2500 交界线的上方，属于数学上的“次优陷阱”。"
         ]
       }

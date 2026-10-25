@@ -42,7 +42,7 @@ export default {
   medOpt0: "CHF 0 / yr (Healthy)",
   medOpt500: "CHF 500 / yr (Minor)",
   medOpt1500: "CHF 1'500 / yr",
-  medOpt1800: "CHF 1'800 / yr (Break-even)",
+  medOptBreakEven: "CHF 1'900 / yr (Typical break-even)",
   medOpt3000: "CHF 3'000 / yr",
   medOpt5000: "CHF 5'000 / yr (High/Chronic)",
   medOptCustom: (v) => `CHF ${fmtChf(v, 0)} / yr (Custom)`,
@@ -68,7 +68,7 @@ export default {
   locationMoreHint: (total) => `${total} matches found — type more characters to refine`,
   lblSelectPlanForCurve: "Pick a plan to compare its franchise levels",
   lblHoverMedical: "Est. 2027 Medical Bills (vertical line)",
-  preset1800: "CHF 1'800 Break-even",
+  presetBreakEven: "CHF 1'900 Typical break-even",
   lblVerdict: "Recommendation",
   chartTitle: "Annual Total Outlay by Franchise",
   chartSub: "X-Axis: Est. Annual Medical Bills (CHF 0 ~ 6'000) · Y-Axis: Total Annual Outlay (12×Net Monthly + Deductible + 10% Co-pay)",
@@ -201,8 +201,8 @@ export default {
         title: "Why Adults Should Only Pick CHF 300 or CHF 2'500",
         desc: "Swiss law caps the maximum annual premium discount at 70% of the extra Franchise risk. Raising your Franchise from 300 to 2'500 (+2'200 risk) saves up to CHF 1'540/year:",
         bullets: [
-          "<strong>Medical bills &lt; CHF 1'800:</strong> <strong>CHF 2'500</strong> is mathematically always cheapest",
-          "<strong>Medical bills &gt; CHF 1'800:</strong> <strong>CHF 300</strong> is mathematically always cheapest",
+          "<strong>Medical bills below roughly CHF 1'800–2'000:</strong> <strong>CHF 2'500</strong> is cheapest",
+          "<strong>Above that range:</strong> <strong>CHF 300</strong> is cheapest. The exact break-even depends on the plan; '02 Which Franchise?' shows it",
           "<strong>Middle tiers (500–2000):</strong> As shown in '02 Which Franchise?', middle franchises sit above the 300/2500 lower envelope at every single point."
         ]
       }

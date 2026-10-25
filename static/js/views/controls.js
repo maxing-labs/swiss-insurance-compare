@@ -42,7 +42,7 @@ export function renderMedicalQuickSelect() {
     { val: 0, text: dict.medOpt0 },
     { val: 500, text: dict.medOpt500 },
     { val: 1500, text: dict.medOpt1500 },
-    { val: 1800, text: dict.medOpt1800 },
+    { val: 1900, text: dict.medOptBreakEven },
     { val: 3000, text: dict.medOpt3000 },
     { val: 5000, text: dict.medOpt5000 }
   ];
