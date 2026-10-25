@@ -6,6 +6,7 @@
 
 - 本地：`python3 server.py` → http://127.0.0.1:8765
 - 测试：`python3 -m unittest`（不联网，用 `tests/fixtures/` 里的上游快照）。上游改版或每年 9 月更新数据后，用 `python3 -m tests.make_fixtures` 重新生成快照（需联网），再按新数据修正测试
+- 前端测试：`node --test 'tests/js/*.test.mjs'`（Node ≥ 22，只用内置的 `node:test`），覆盖 `static/js/calc.js`、`location-search.js` 的纯函数。不要为此加 `package.json`，以免 Vercel 把项目识别成 Node 项目
 - 线上：Vercel，路由见 `vercel.json`
 
 ## 约定
