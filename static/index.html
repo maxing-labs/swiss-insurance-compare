@@ -106,7 +106,7 @@
         </div>
 
         <div class="pf-field pf-models">
-          <label data-i18n="lblModels">模型筛选</label>
+          <label data-i18n="lblModels">就医模式</label>
           <div class="model-toggles" id="model-pills">
             <label class="m-chip active" data-model-tip="tipBase"><input type="checkbox" value="BASE" checked><span>Standard</span></label>
             <label class="m-chip active" data-model-tip="tipFlex"><input type="checkbox" value="FLEX" checked><span>FLEX</span></label>
@@ -129,13 +129,13 @@
         <li role="presentation">
           <button type="button" role="tab" aria-selected="false" data-tab="curves">
             <span class="tab-num">02</span>
-            <span data-i18n="tabCurves">盈亏曲线</span>
+            <span data-i18n="tabCurves">自付额怎么选</span>
           </button>
         </li>
         <li role="presentation">
           <button type="button" role="tab" aria-selected="false" data-tab="matrix">
             <span class="tab-num">03</span>
-            <span data-i18n="tabMatrix">全档矩阵</span>
+            <span data-i18n="tabMatrix">自付额对照表</span>
           </button>
         </li>
         <li role="presentation">
@@ -147,7 +147,7 @@
         <li role="presentation">
           <button type="button" role="tab" aria-selected="false" data-tab="guide">
             <span class="tab-num">05</span>
-            <span data-i18n="tabGuide">模型指南</span>
+            <span data-i18n="tabGuide">新手指南</span>
           </button>
         </li>
       </ul>
@@ -177,7 +177,7 @@
           <span class="kpi-meta" id="kpi-savings-sub">—</span>
         </div>
         <div class="kpi-cell">
-          <span class="kpi-label" data-i18n="kpiStable">5年均涨最低 (公司基准)</span>
+          <span class="kpi-label" data-i18n="kpiStable">5年涨幅最低的公司</span>
           <strong class="kpi-num" id="kpi-most-stable">—</strong>
           <span class="kpi-meta" id="kpi-stable-sub">—</span>
         </div>
@@ -190,7 +190,7 @@
 
       <div class="toolbar-row">
         <div class="search-wrap">
-          <input type="search" id="search-filter" data-i18n-placeholder="searchPlaceholder" placeholder="过滤保险公司或模型 (如 Sanitas, Assura, HMO)..." aria-label="Filter insurer or model">
+          <input type="search" id="search-filter" data-i18n-placeholder="searchPlaceholder" placeholder="搜索保险公司或方案 (如 Sanitas, Assura, HMO)..." aria-label="Filter insurer or model">
         </div>
         <div class="toolbar-right">
           <label for="medical-quick-select" class="inline-cost-lbl" data-i18n="lblQuickMed">预估年医疗费:</label>
@@ -221,7 +221,7 @@
                 <span data-i18n="th5YrAvg">5年均涨</span>
                 <span class="th-info-tip" id="th-5yr-tip" title="基于该保险公司在当前地区标准模型 (Standard) 过去5年的平均保费涨幅">ⓘ</span>
               </th>
-              <th scope="col" class="num-col" data-i18n="thCurveAction">精算曲线</th>
+              <th scope="col" class="num-col" data-i18n="thCurveAction">自付额分析</th>
             </tr>
           </thead>
           <tbody id="ranking-tbody"></tbody>
@@ -236,27 +236,27 @@
       <div class="curves-layout">
         <div class="curves-controls">
           <div class="field-box">
-            <label for="curve-plan-select" data-i18n="lblSelectPlanForCurve">选择保险方案绘制全档位曲线</label>
+            <label for="curve-plan-select" data-i18n="lblSelectPlanForCurve">选择一个方案，比较它的各个自付额档位</label>
             <select id="curve-plan-select"></select>
           </div>
 
           <div class="field-box">
             <label for="medical-cost-slider">
-              <span data-i18n="lblHoverMedical">预估 2027 医疗账单 (X轴游标)</span>:
+              <span data-i18n="lblHoverMedical">预估 2027 年看病花费 (图中竖线)</span>:
               <strong id="curve-cost-readout" class="text-accent">CHF 500</strong>
             </label>
             <input type="range" id="medical-cost-slider" min="0" max="6000" step="50" value="500">
             <div class="preset-pills" id="preset-pills-wrap">
               <button type="button" class="preset-btn" data-cost="0">CHF 0</button>
               <button type="button" class="preset-btn" data-cost="500">CHF 500</button>
-              <button type="button" class="preset-btn" data-cost="1800" data-i18n="preset1800">CHF 1'800 临界</button>
+              <button type="button" class="preset-btn" data-cost="1800" data-i18n="preset1800">CHF 1'800 临界点</button>
               <button type="button" class="preset-btn" data-cost="3500">CHF 3'500</button>
               <button type="button" class="preset-btn" data-cost="6000">CHF 6'000</button>
             </div>
           </div>
 
           <div class="verdict-box" id="curve-verdict-box">
-            <div class="verdict-label" data-i18n="lblVerdict">精算结论</div>
+            <div class="verdict-label" data-i18n="lblVerdict">建议</div>
             <h3 id="verdict-title">—</h3>
             <p id="verdict-desc">—</p>
           </div>
@@ -265,8 +265,8 @@
         <div class="chart-card">
           <div class="chart-header">
             <div>
-              <h2 id="chart-plan-title" data-i18n="chartTitle">各 Franchise 档位全年总支出曲线</h2>
-              <p class="chart-sub" data-i18n="chartSub">横轴 (X): 预估全年医疗总账单 (CHF 0 ~ 6'000) · 纵轴 (Y): 全年实际掏钱总额 (12×净月保费 + Franchise内自付 + 10%超额自付)</p>
+              <h2 id="chart-plan-title" data-i18n="chartTitle">各自付额档位的全年总花费</h2>
+              <p class="chart-sub" data-i18n="chartSub">横轴: 预估全年看病总花费 (CHF 0 ~ 6'000) · 纵轴: 全年实际掏钱总额 (12×净月保费 + 自付额内自付 + 10% 超额自付)</p>
             </div>
             <div class="chart-legend" id="chart-legend"></div>
           </div>
@@ -283,7 +283,7 @@
     <section class="view-section hidden" id="view-matrix" role="tabpanel">
       <div class="toolbar-row">
         <p class="section-note" data-i18n="matrixHint">
-          绿色标记 (★) 为当前预估医疗支出下该方案最省钱的 Franchise 档位；「—」表示该保险方案不提供对应 Franchise 档位。点击任意行可查看盈亏曲线。
+          绿色标记 (★) 为当前预估看病花费下该方案最省钱的自付额档位；「—」表示该方案不提供该档位。点击任意行可查看自付额分析。
         </p>
         <div class="seg-mini">
           <label>

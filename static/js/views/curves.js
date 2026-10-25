@@ -152,7 +152,7 @@ export function renderCurvesTab(plans, franchises, rebate, isKid) {
       <div class="cb-item ${isBest ? "best" : ""}">
         <div class="cb-head">
           <span class="legend-dot" style="background:${s.color}"></span>
-          <span>Franchise ${s.franchise} ${isBest ? dict.cbBestTag : ""}</span>
+          <span>${dict.franchiseTag(s.franchise)} ${isBest ? dict.cbBestTag : ""}</span>
         </div>
         <div class="cb-total">CHF ${fmtChf(s.cursorTotal, 0)}</div>
         <div class="cb-sub">${dict.cbSubText(s.netYearly, s.cursorOop)}</div>
