@@ -140,6 +140,7 @@ export async function fetchAndRenderCalculation() {
   calcAbortCtrl = new AbortController();
 
   const badge = document.getElementById("status-badge");
+  badge.dataset.i18n = "statusLoading";
   badge.textContent = I18N[state.lang].statusLoading;
   badge.classList.add("loading");
   badge.classList.remove("error");
