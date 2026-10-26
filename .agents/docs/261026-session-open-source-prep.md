@@ -16,6 +16,11 @@
 | 1 | `e951a4c` | 默认语言改为英文：`state.lang`、`applyLanguage` 的回退值和 18 处 `I18N.zh` 回退都改为 `en`；`index.html` 的 `lang`、标题、meta description、语言按钮高亮和全部 64 处 `data-i18n*` 占位文本按 `en.js` 重写（脚本生成，不是手改）；三处 sr-only caption 和 5 年提示 tooltip 一并改成英文；e2e 测试的默认语言断言改为英文串；`AGENTS.md` 的 i18n 一条注明默认 `en` |
 | 2 | `8fe6b28` | 开源文件：`LICENSE`（MIT）、`README.md`（英文，含 agent 工作流一节）、`static/fonts/OFL-*.txt`（Fraunces、IBM Plex Sans 的 OFL 许可文本）；三份 session 记录里 7 处含 Vercel team slug 的 preview 地址改为「已略去」，保留别名 |
 
+### 部署
+
+- preview：HEAD `eeae19e`，`vercel deploy`，preview 地址已略去，`dpl_3ji8YEEgJyUWd3VgCsXjtbBiZ5Rx`。验证：首页 `lang="en"`、英文标题、EN 按钮高亮、无中文；`js/state.js` 以 `application/javascript` 返回且 `lang: "en"`；`/api/calculate` 返回 200、128 个方案；`/fonts/OFL-Fraunces.txt` 可访问
+- 没有执行 `vercel deploy --prod`
+
 ### 敏感内容排查结果
 
 - 已跟踪文件与全部历史：没有密钥、token、邮箱、`/Users/...` 路径、analytics ID；历史里没有删除过文件
@@ -35,7 +40,7 @@
 - **静态 HTML 的占位文本也改英文，不只改 `state.lang`**：模块按 main → controller → views 三层加载，JS 执行前会先显示 HTML 里的文字；标题和 meta description 还会被不执行 JS 的抓取器和分享预览直接使用
 - **只去掉 preview 主机名，保留别名和 `dpl_` id**：主机名里的 team slug 会把 GitHub 身份和邮箱前缀关联起来，别名和部署 id 不会
 - **e2e 的 `locale: "zh-CN"` 不动**：应用不读 `navigator.language`，与默认语言无关
-- **不部署**（用户要求）：没有执行 `vercel deploy`，preview 也没有
+- **只部署 preview，不部署生产**（用户要求）
 
 ## 遗留问题与下一步
 
