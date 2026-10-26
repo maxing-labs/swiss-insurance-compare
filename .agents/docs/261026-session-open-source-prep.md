@@ -19,7 +19,7 @@
 ### 部署
 
 - preview：HEAD `eeae19e`，`vercel deploy`，preview 地址已略去，`dpl_3ji8YEEgJyUWd3VgCsXjtbBiZ5Rx`。验证：首页 `lang="en"`、英文标题、EN 按钮高亮、无中文；`js/state.js` 以 `application/javascript` 返回且 `lang: "en"`；`/api/calculate` 返回 200、128 个方案；`/fonts/OFL-Fraunces.txt` 可访问
-- 没有执行 `vercel deploy --prod`
+- 生产：同一个 HEAD `eeae19e` 之上加了 preview 记录（`17b7a61`），`vercel deploy --prod --yes`，别名 `swiss-insurance-compare.vercel.app`，`dpl_FRWGuKpDhHacDauzhKNW3wqhLjE2`。按 preview 同样四项复验通过（`lang="en"`、英文标题、EN 高亮、无中文；`state.js` 默认 `en`；API 200、128 个方案；字体许可文本可访问）
 
 ### 敏感内容排查结果
 
@@ -40,10 +40,9 @@
 - **静态 HTML 的占位文本也改英文，不只改 `state.lang`**：模块按 main → controller → views 三层加载，JS 执行前会先显示 HTML 里的文字；标题和 meta description 还会被不执行 JS 的抓取器和分享预览直接使用
 - **只去掉 preview 主机名，保留别名和 `dpl_` id**：主机名里的 team slug 会把 GitHub 身份和邮箱前缀关联起来，别名和部署 id 不会
 - **e2e 的 `locale: "zh-CN"` 不动**：应用不读 `navigator.language`，与默认语言无关
-- **只部署 preview，不部署生产**（用户要求）
+- **先 preview 再生产**（用户要求）：preview 复验通过后，用户确认再部署生产；线上默认语言从此为英文
 
 ## 遗留问题与下一步
 
-- **还没有 push**：仓库仍无远程，GitHub 上没有 `priminfo-pro`。建议：`gh repo create X-Wei/priminfo-pro --public --source=. --remote=origin --push`
-- **线上仍是旧默认（中文）**：生产部署等用户决定
+- **还没有 push**：用户决定暂不 push、暂不新建 GitHub 仓库。仓库仍无远程。届时命令：`gh repo create X-Wei/priminfo-pro --public --source=. --remote=origin --push`
 - 上次遗留的条目未动（手机端 Tab 横向滑动、字体只有 latin 子集、评审 #8 #14 #16 #17）
