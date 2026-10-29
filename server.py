@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Priminfo Pro - Local Dev Server & Vercel-Compatible Backend
+Swiss Insurance Compare - Local Dev Server & Vercel-Compatible Backend
 """
 
 import json
@@ -42,6 +42,6 @@ class PriminfoHandler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = 8765
-    print(f"Starting Priminfo Pro server at http://127.0.0.1:{port}")
+    print(f"Starting Swiss Insurance Compare server at http://127.0.0.1:{port}")
     server = HTTPServer(("127.0.0.1", port), PriminfoHandler)
     server.serve_forever()

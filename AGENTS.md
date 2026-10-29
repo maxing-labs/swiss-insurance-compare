@@ -1,4 +1,4 @@
-# Priminfo Pro
+# Swiss Insurance Compare
 
 瑞士基础医保（KVG）保费比价站：实时抓取 BAG 官方站 priminfo.admin.ch 的 HTML，解析成 JSON，再由前端计算和展示。部署在 Vercel。
 

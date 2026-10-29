@@ -2,8 +2,8 @@ import { fmtChf, fmtSignedPct } from "../format.js";
 
 export default {
   htmlLang: "en",
-  docTitle: "Priminfo Pro — Swiss Health Insurance Calculator (2027)",
-  appTitle: "PRIMINFO PRO",
+  docTitle: "Swiss Insurance Compare — Swiss Health Insurance Calculator (2027)",
+  appTitle: "SWISS INSURANCE COMPARE",
   appSubtitle: "BAG 2027 Official Data · Updated 2026-09",
   statusReady: "Data loaded",
   statusLoading: "Loading...",
@@ -112,7 +112,7 @@ export default {
   toastInvalidYob: "Please enter a birth year between 1900 and 2027",
   toastLoadFailed: "Failed to load data, please try again later",
   btnAbout: "About",
-  aboutTitle: "About Priminfo Pro",
+  aboutTitle: "About Swiss Insurance Compare",
   aboutClose: "Close",
   aboutDataH: "Data source",
   aboutDataP: "All premiums come live and unaltered from priminfo.admin.ch, the official premium calculator of the Swiss Federal Office of Public Health (FOPH / BAG). They are refreshed once the FOPH publishes the next year's premiums at the end of September.",

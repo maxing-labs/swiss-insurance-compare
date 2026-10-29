@@ -1,10 +1,10 @@
-# Priminfo Pro
+# Swiss Insurance Compare
 
 Compare Swiss basic health insurance (KVG / LAMal) premiums for 2027 and find the franchise (deductible) that is cheapest for *your* expected medical bills.
 
 **Live:** https://swiss-insurance-compare.vercel.app
 
-Priminfo Pro is an independent hobby project and is not affiliated with the Swiss Federal Office of Public Health (FOPH / BAG). All premiums are fetched live from the official calculator [priminfo.admin.ch](https://www.priminfo.admin.ch) and shown unaltered; the FOPH also publishes the same figures as open data on [opendata.swiss](https://opendata.swiss). Results are for guidance only and are not insurance advice.
+Swiss Insurance Compare is an independent hobby project and is not affiliated with the Swiss Federal Office of Public Health (FOPH / BAG). All premiums are fetched live from the official calculator [priminfo.admin.ch](https://www.priminfo.admin.ch) and shown unaltered; the FOPH also publishes the same figures as open data on [opendata.swiss](https://opendata.swiss). Results are for guidance only and are not insurance advice.
 
 ## What it does
 

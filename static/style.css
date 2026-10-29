@@ -375,6 +375,8 @@ select {
   }
   .brand h1 {
     font-size: 0.95rem;
+    white-space: normal;
+    line-height: 1.1;
   }
   .brand-meta {
     display: none;
@@ -410,6 +412,15 @@ select {
   .btn-mobile-collapse {
     display: inline-flex;
     align-items: center;
+  }
+}
+
+@media (max-width: 359px) {
+  .header-top {
+    flex-wrap: wrap;
+  }
+  .header-actions {
+    margin-inline-start: auto;
   }
 }
 

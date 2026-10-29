@@ -2,8 +2,8 @@ import { fmtChf, fmtSignedPct } from "../format.js";
 
 export default {
   htmlLang: "zh-CN",
-  docTitle: "Priminfo Pro — 瑞士医保比价 (2027)",
-  appTitle: "PRIMINFO PRO",
+  docTitle: "Swiss Insurance Compare — 瑞士医保比价 (2027)",
+  appTitle: "SWISS INSURANCE COMPARE",
   appSubtitle: "BAG 2027 官方数据 · 更新于 2026-09",
   statusReady: "数据已加载",
   statusLoading: "加载中...",
@@ -112,7 +112,7 @@ export default {
   toastInvalidYob: "请输入 1900–2027 之间的有效出生年份",
   toastLoadFailed: "数据加载失败，请稍后重试",
   btnAbout: "关于",
-  aboutTitle: "关于 Priminfo Pro",
+  aboutTitle: "关于 Swiss Insurance Compare",
   aboutClose: "关闭",
   aboutDataH: "数据来源",
   aboutDataP: "所有保费数据实时取自瑞士联邦公共卫生局 (BAG) 的官方保费查询网站 priminfo.admin.ch，不做任何加工；每年 9 月底官方公布下一年度保费后更新。",

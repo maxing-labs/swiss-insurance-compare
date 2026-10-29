@@ -2,8 +2,8 @@ import { fmtChf, fmtSignedPct } from "../format.js";
 
 export default {
   htmlLang: "de-CH",
-  docTitle: "Priminfo Pro — Schweizer Krankenkassenvergleich (2027)",
-  appTitle: "PRIMINFO PRO",
+  docTitle: "Swiss Insurance Compare — Schweizer Krankenkassenvergleich (2027)",
+  appTitle: "SWISS INSURANCE COMPARE",
   appSubtitle: "BAG 2027 Offizielle Daten · Stand 2026-09",
   statusReady: "Daten geladen",
   statusLoading: "Lädt...",
@@ -112,7 +112,7 @@ export default {
   toastInvalidYob: "Bitte einen gültigen Jahrgang (1900–2027) eingeben",
   toastLoadFailed: "Daten konnten nicht geladen werden, bitte später erneut versuchen",
   btnAbout: "Info",
-  aboutTitle: "Über Priminfo Pro",
+  aboutTitle: "Über Swiss Insurance Compare",
   aboutClose: "Schliessen",
   aboutDataH: "Datenquelle",
   aboutDataP: "Alle Prämien stammen live und unverändert von priminfo.admin.ch, dem offiziellen Prämienrechner des Bundesamts für Gesundheit (BAG). Sie werden aktualisiert, sobald das BAG Ende September die Prämien des Folgejahres veröffentlicht.",
