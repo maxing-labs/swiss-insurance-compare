@@ -1,8 +1,14 @@
 # Swiss Insurance Compare
 
+**English** · [中文](README-zh.md)
+
 Compare Swiss basic health insurance (KVG / LAMal) premiums for 2027 and find the franchise (deductible) that is cheapest for *your* expected medical bills.
 
-**Live:** https://swiss-insurance-compare.vercel.app
+**Live:** https://swiss-insurance-compare.vercel.app · **Sister project:** [Swiss Tax Compare](https://swiss-tax-compare.vercel.app) ([GitHub](https://github.com/maxing-labs/swiss-tax-compare))
+
+![Swiss Insurance Compare — Plan ranking and KPIs](docs/screenshot.png)
+
+![Swiss Insurance Compare — Franchise break-even curves](docs/screenshot-curves.png)
 
 Swiss Insurance Compare is an independent hobby project and is not affiliated with the Swiss Federal Office of Public Health (FOPH / BAG). All premiums are fetched live from the official calculator [priminfo.admin.ch](https://www.priminfo.admin.ch) and shown unaltered; the FOPH also publishes the same figures as open data on [opendata.swiss](https://opendata.swiss). Results are for guidance only and are not insurance advice.
 
@@ -28,7 +34,7 @@ Browser tests live in `tests/e2e/` and need `playwright-core`; [AGENTS.md](AGENT
 
 ## How this repo is built: with coding agents
 
-Every commit in this repository so far was written by an AI coding agent (Claude Code, across many sessions, sometimes several in parallel). The working notes are published on purpose, so you can see how that goes in practice:
+Like its sibling [Swiss Tax Compare](https://github.com/maxing-labs/swiss-tax-compare) ([live](https://swiss-tax-compare.vercel.app)), every commit in this repository so far was written by an AI coding agent (Claude Code, across many sessions, sometimes several in parallel). The working notes are published on purpose, so you can see how that goes in practice:
 
 - [`AGENTS.md`](AGENTS.md) is the brief every agent reads first: how to run things, the project's conventions, and the rule that each session must leave a record.
 - [`.agents/docs/`](.agents/docs/) holds those records, one per session (`yymmdd-session-*.md`): the goal, what was done with commit hashes, the key decisions and why (marked "用户选" when the human decided), and what is left open. [`261025-architecture-review.md`](.agents/docs/261025-architecture-review.md) is the P0/P1/P2 review that set the order of work.
