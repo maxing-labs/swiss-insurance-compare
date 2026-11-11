@@ -4,7 +4,7 @@
 
 Compare Swiss basic health insurance (KVG / LAMal) premiums for 2027 and find the franchise (deductible) that is cheapest for *your* expected medical bills.
 
-**Live:** https://swiss-insurance-compare.vercel.app · **Sister project:** [Swiss Tax Compare](https://swiss-tax-compare.vercel.app) ([GitHub](https://github.com/maxing-labs/swiss-tax-compare))
+**Live:** https://swiss-insurance-compare.pages.dev (mirror: https://swiss-insurance-compare.vercel.app) · **Sister project:** [Swiss Tax Compare](https://swiss-tax-compare.pages.dev) ([GitHub](https://github.com/maxing-labs/swiss-tax-compare))
 
 ![Swiss Insurance Compare — Plan ranking and KPIs](docs/screenshot.png)
 
@@ -30,11 +30,11 @@ python3 -m unittest                # backend tests, offline, against the snapsho
 node --test 'tests/js/*.test.mjs'  # frontend unit tests (Node >= 22)
 ```
 
-Browser tests live in `tests/e2e/` and need `playwright-core`; [AGENTS.md](AGENTS.md) explains how to run them. Production runs on Vercel: `vercel.json` routes `/api/*` to `api/index.py` and everything else to `static/`.
+Browser tests live in `tests/e2e/` and need `playwright-core`; [AGENTS.md](AGENTS.md) explains how to run them. Production runs serverlessly on Cloudflare Pages (`functions/api/[[path]].js` + `static/_headers`) and Vercel (`vercel.json` routing `/api/*` to `api/index.py` and everything else to `static/`).
 
 ## How this repo is built: with coding agents
 
-Like its sibling [Swiss Tax Compare](https://github.com/maxing-labs/swiss-tax-compare) ([live](https://swiss-tax-compare.vercel.app)), every commit in this repository so far was written by an AI coding agent (Claude Code, across many sessions, sometimes several in parallel). The working notes are published on purpose, so you can see how that goes in practice:
+Like its sibling [Swiss Tax Compare](https://github.com/maxing-labs/swiss-tax-compare) ([live](https://swiss-tax-compare.pages.dev)), every commit in this repository so far was written by an AI coding agent (Claude Code, across many sessions, sometimes several in parallel). The working notes are published on purpose, so you can see how that goes in practice:
 
 - [`AGENTS.md`](AGENTS.md) is the brief every agent reads first: how to run things, the project's conventions, and the rule that each session must leave a record.
 - [`.agents/docs/`](.agents/docs/) holds those records, one per session (`yymmdd-session-*.md`): the goal, what was done with commit hashes, the key decisions and why (marked "用户选" when the human decided), and what is left open. [`261025-architecture-review.md`](.agents/docs/261025-architecture-review.md) is the P0/P1/P2 review that set the order of work.

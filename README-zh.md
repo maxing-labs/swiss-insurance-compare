@@ -4,7 +4,7 @@
 
 查询与对比 2027 年瑞士基础医疗保险（KVG / LAMal）全部方案保费，并根据你预期的年度医疗开支找出最划算的免赔额（Franchise）。
 
-**线上地址：** https://swiss-insurance-compare.vercel.app · **姊妹项目：** [Swiss Tax Compare（瑞士税务计算比价）](https://swiss-tax-compare.vercel.app)（[GitHub](https://github.com/maxing-labs/swiss-tax-compare)）
+**线上地址：** https://swiss-insurance-compare.pages.dev（备用镜像：https://swiss-insurance-compare.vercel.app）· **姊妹项目：** [Swiss Tax Compare（瑞士税务计算比价）](https://swiss-tax-compare.pages.dev)（[GitHub](https://github.com/maxing-labs/swiss-tax-compare)）
 
 ![Swiss Insurance Compare — 保费排名与核心指标](docs/screenshot.png)
 
@@ -31,11 +31,11 @@ python3 -m unittest                # 后端离线单元测试（使用 tests/fix
 node --test 'tests/js/*.test.mjs'  # 前端单元测试（需 Node >= 22）
 ```
 
-端到端浏览器测试位于 `tests/e2e/`（需本机具备 `playwright-core`），运行方式见 [AGENTS.md](AGENTS.md)。生产环境部署于 Vercel，由 `vercel.json` 将 `/api/*` 路由至 `api/index.py`、其余静态资源路由至 `static/`。
+端到端浏览器测试位于 `tests/e2e/`（需本机具备 `playwright-core`），运行方式见 [AGENTS.md](AGENTS.md)。生产环境无服务器部署于 Cloudflare Pages（`functions/api/[[path]].js` + `static/_headers`）与 Vercel（`vercel.json` 将 `/api/*` 路由至 `api/index.py`、其余静态资源路由至 `static/`）。
 
 ## 协作方式：由 Coding Agents 构建
 
-与姊妹项目 [Swiss Tax Compare](https://github.com/maxing-labs/swiss-tax-compare)（[线上](https://swiss-tax-compare.vercel.app)）一样，本仓库迄今为止的每一次提交均由 AI 编程代理（Claude Code，跨多个串行与并行会话）编写。仓库特意完整保留了过程记录，方便查阅实际协作流程：
+与姊妹项目 [Swiss Tax Compare](https://github.com/maxing-labs/swiss-tax-compare)（[线上](https://swiss-tax-compare.pages.dev)）一样，本仓库迄今为止的每一次提交均由 AI 编程代理（Claude Code，跨多个串行与并行会话）编写。仓库特意完整保留了过程记录，方便查阅实际协作流程：
 
 - [`AGENTS.md`](AGENTS.md) 是每个 Agent 进入仓库首先阅读的说明书：包含运行与测试方式、工程约定，以及每次会话结束必须留存记录的规则。
 - [`.agents/docs/`](.agents/docs/) 存放按会话拆分的工程记录（`yymmdd-session-*.md`）：包含目标、完成内容与提交 hash、关键决策及原因（由人类拍板的标有「用户选」），以及遗留问题。[`261025-architecture-review.md`](.agents/docs/261025-architecture-review.md) 是确立后续迭代顺序的 P0/P1/P2 架构评审。

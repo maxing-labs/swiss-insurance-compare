@@ -71,9 +71,11 @@ Observability 的 Referrer 与 Routes 统计完整还原了死循环现场：
 2. **基于 `sessionStorage` 的快速重载熔断器**（`static/js/state.js`）：
    - 记录当前标签页在 `4000 ms` 滑动窗口内的启动时间戳；若连续启动达到 **4 次**，判定宿主 WebView 处于异常重载循环，自动抑制首屏（`{ startup: true }`）的 `replaceState` 改写，从根源切断裸链接回跳死循环（上限封死在前 3 次刷新以内）。
    - 用户主动点击筛选控件触发的 `saveActiveStateToStorageAndUrl()` 不受影响，仍正常更新地址栏供复制分享。
-3. **静态资源分层浏览器缓存头**（`vercel.json`）：
+3. **静态资源分层浏览器缓存头**（`vercel.json` 与 `static/_headers`）：
    - 自托管字体（`*.woff2`）：`public, max-age=31536000, immutable`（1 年强缓存，永不重复校验）。
    - 样式与原生 ES 模块脚本（`*.css`、`*.js`）：`public, max-age=300, stale-while-revalidate=86400`（5 分钟浏览器本地强缓存 + 后台静默更新：既无需引入打包器文件名 hash、保证发版 5 分钟内全网生效，又能把短时间连续刷新的静态资源网络请求直接降为 **0**）。
+4. **Cloudflare Pages 纯 Serverless 双活部署**（`functions/api/[[path]].js` + `static/_headers`）：
+   - 新增 Cloudflare Pages 部署（`*.pages.dev`），静态资源请求免费且无次数上限，彻底消除单客户端刷屏或社区引流高峰耗尽 CDN 配额的风险；同时保留 Vercel 与本地 `server.py` 兼容。
 
 ---
 
