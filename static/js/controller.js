@@ -160,7 +160,7 @@ export async function changeYob(yob) {
   await fetchAndRenderCalculation();
 }
 
-export async function fetchAndRenderCalculation() {
+export async function fetchAndRenderCalculation({ startup = false } = {}) {
   const seq = ++calcFetchSeq;
   if (calcAbortCtrl) calcAbortCtrl.abort();
   calcAbortCtrl = new AbortController();
@@ -193,7 +193,7 @@ export async function fetchAndRenderCalculation() {
       persistProfiles();
     }
 
-    saveActiveStateToStorageAndUrl();
+    saveActiveStateToStorageAndUrl({ startup });
     onDataChange();
   } catch (e) {
     if (e.name === "AbortError") return;
@@ -299,7 +299,7 @@ export function setMedicalCost(cost) {
   invalidateTabs(["ranking", "curves", "matrix"]);
 }
 
-export function switchTab(tabId) {
+export function switchTab(tabId, { persist = true } = {}) {
   state.activeTab = tabId;
   renderIfStale(tabId);
   document.querySelectorAll(".nav-tabs li").forEach(li => {
@@ -314,10 +314,10 @@ export function switchTab(tabId) {
     if (sec) sec.classList.toggle("hidden", id !== tabId);
   });
 
-  saveActiveStateToStorageAndUrl();
+  if (persist) saveActiveStateToStorageAndUrl();
 }
 
-export function applyLanguage(lang) {
+export function applyLanguage(lang, { persist = true } = {}) {
   state.lang = I18N[lang] ? lang : "en";
   const dict = I18N[state.lang];
 
@@ -355,7 +355,7 @@ export function applyLanguage(lang) {
 
   renderMedicalQuickSelect();
   renderGuideTab();
-  saveActiveStateToStorageAndUrl();
+  if (persist) saveActiveStateToStorageAndUrl();
   if (state.data) {
     onDataChange();
   } else {

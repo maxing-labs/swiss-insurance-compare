@@ -1,7 +1,7 @@
 import { I18N } from "./i18n/index.js";
 import { esc } from "./format.js";
 import { searchLocations } from "./location-search.js";
-import { state, getPremiumYear, loadSavedProfilesAndActiveState, getEnrichedPlans } from "./state.js";
+import { state, getPremiumYear, loadSavedProfilesAndActiveState, saveActiveStateToStorageAndUrl, getEnrichedPlans } from "./state.js";
 import { showToast } from "./views/toast.js";
 import { getAgeTagText, syncFormControlsFromState, updateMobileCollapseLabel } from "./views/controls.js";
 import { renderRankingTable, exportRankingToCsv } from "./views/ranking.js";
@@ -342,10 +342,11 @@ async function initApp() {
   bindEvents();
   await updateFranchisesForYob(state.yob);
   syncFormControlsFromState();
-  applyLanguage(state.lang);
-  switchTab(state.activeTab);
+  applyLanguage(state.lang, { persist: false });
+  switchTab(state.activeTab, { persist: false });
+  saveActiveStateToStorageAndUrl({ startup: true });
   loadLocations();
-  await fetchAndRenderCalculation();
+  await fetchAndRenderCalculation({ startup: true });
 }
 
 document.addEventListener("DOMContentLoaded", initApp);

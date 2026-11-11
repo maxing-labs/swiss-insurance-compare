@@ -3,6 +3,9 @@ import { enrichPlans, ascNullsLast } from "./calc.js";
 
 const STORAGE_KEY_PROFILES = "priminfo_pro_profiles_v2";
 const STORAGE_KEY_ACTIVE_STATE = "priminfo_pro_active_state_v2";
+const RELOAD_GUARD_KEY = "priminfo_pro_reload_guard_v1";
+const RELOAD_WINDOW_MS = 4000;
+const RELOAD_MAX_COUNT = 4;
 // In the order of the #model-pills checkboxes, so the API URL (and its CDN cache entry) is the same either way
 const ALL_MODELS = ["BASE", "FLEX", "PRAXIS", "TEL_DIG", "PHARM"];
 
@@ -30,6 +33,21 @@ export const state = {
 };
 
 let saveStateTimer = null;
+let suppressStartupUrlRewrite = false;
+
+// Embedded WKWebView wrappers (e.g. SwiftUI updateNSView) can enter an infinite reload loop if startup
+// replaceState mutates a bare URL and the host reloads whenever webView.url != initialURL.
+function recordLoadAndCheckLoop(now = Date.now()) {
+  try {
+    const prev = JSON.parse(sessionStorage.getItem(RELOAD_GUARD_KEY) || "[]");
+    const recent = (Array.isArray(prev) ? prev : []).filter(t => Number.isFinite(t) && now - t < RELOAD_WINDOW_MS);
+    recent.push(now);
+    sessionStorage.setItem(RELOAD_GUARD_KEY, JSON.stringify(recent.slice(-RELOAD_MAX_COUNT)));
+    return recent.length >= RELOAD_MAX_COUNT;
+  } catch (e) {
+    return false;
+  }
+}
 
 export function getPremiumYear() {
   return state.data?.meta?.premiumYear || 2027;
@@ -40,7 +58,7 @@ export function isChildYob(yob) {
   return Number(yob) >= py - 18;
 }
 
-export function saveActiveStateToStorageAndUrl() {
+export function saveActiveStateToStorageAndUrl({ startup = false } = {}) {
   const activeSnapshot = {
     lang: state.lang,
     activeTab: state.activeTab,
@@ -59,6 +77,8 @@ export function saveActiveStateToStorageAndUrl() {
     // ignore storage errors
   }
 
+  if (startup && suppressStartupUrlRewrite) return;
+
   try {
     const params = new URLSearchParams(window.location.search);
     params.set("loc", state.locationId);
@@ -71,7 +91,11 @@ export function saveActiveStateToStorageAndUrl() {
     params.set("lang", state.lang);
     // commas are valid in a query string; keep them readable
     const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
-    window.history.replaceState(null, "", newUrl);
+    // Skip no-op replaceState: WebKit/WKWebView still fires URL KVO observers even when newUrl === currentUrl
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (newUrl !== currentUrl) {
+      window.history.replaceState(null, "", newUrl);
+    }
   } catch (e) {
     // ignore history errors
   }
@@ -83,7 +107,8 @@ export function saveActiveStateDebounced() {
   saveStateTimer = setTimeout(saveActiveStateToStorageAndUrl, 500);
 }
 
-export function loadSavedProfilesAndActiveState() {
+export function loadSavedProfilesAndActiveState({ now } = {}) {
+  suppressStartupUrlRewrite = recordLoadAndCheckLoop(now);
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PROFILES);
     if (raw) {
